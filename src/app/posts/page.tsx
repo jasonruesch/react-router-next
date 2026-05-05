@@ -16,13 +16,10 @@ export default function PostsIndex() {
         </code>
         .
       </p>
-      <ul className="divide-y divide-gray-100">
+      <ul className="divide-y divide-(--border)">
         {posts.map((p) => (
           <li key={p.id} className="py-2">
-            <Link
-              to={`/posts/${p.id}`}
-              className="text-blue-600 hover:underline"
-            >
+            <Link to={`/posts/${p.id}`} className="hover:underline">
               {p.id}. {p.title}
             </Link>
             <p className="text-sm text-gray-600">{p.body}</p>

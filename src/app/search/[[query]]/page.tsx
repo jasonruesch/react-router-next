@@ -1,10 +1,10 @@
-import { Link, useParams } from "react-router";
+import { Link } from "react-router";
+import type { PageProps } from "../../../lib/useRouteParams";
 
 const SUGGESTIONS = ["react", "react-router", "vite", "tailwind"];
 
-export default function Search() {
-  const params = useParams();
-  const q = params.query;
+export default function Search({ params }: PageProps<"search/[[query]]">) {
+  const { query: q } = params;
   return (
     <article>
       <h1 className="text-2xl font-semibold mb-2">Search</h1>
@@ -32,16 +32,13 @@ export default function Search() {
         <ul className="space-y-1">
           {SUGGESTIONS.map((s) => (
             <li key={s}>
-              <Link
-                to={`/search/${s}`}
-                className="text-blue-600 hover:underline"
-              >
+              <Link to={`/search/${s}`} className="hover:underline">
                 /search/{s}
               </Link>
             </li>
           ))}
           <li>
-            <Link to="/search" className="text-blue-600 hover:underline">
+            <Link to="/search" className="hover:underline">
               /search (clear)
             </Link>
           </li>

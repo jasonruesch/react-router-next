@@ -1,9 +1,12 @@
-import { useLoaderData, useParams } from "react-router";
+import { useLoaderData } from "react-router";
 import type { Post } from "../loader";
+import type { PageProps } from "../../../lib/useRouteParams";
 
-export default function PostPage() {
+export default function PostPage({
+  params,
+}: PageProps<"posts/[postId]">) {
   const post = useLoaderData() as Post;
-  const params = useParams();
+  const { postId } = params;
   return (
     <article>
       <h2 className="text-xl font-semibold mb-2">{post.title}</h2>
@@ -15,7 +18,7 @@ export default function PostPage() {
         </dd>
         <dt>params.postId</dt>
         <dd>
-          <code>{params.postId}</code>
+          <code>{postId}</code>
         </dd>
       </dl>
     </article>

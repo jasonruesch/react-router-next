@@ -48,9 +48,46 @@ src/app/
 | `[[...slug]]/` | bare path **and** `/*` (optional catch-all — emitted as a sibling index route + splat route, both pointing at the same `page.tsx`) |
 | `(group)/`   | nothing (route group; folder exists but contributes no URL segment) |
 
+## Typed params
+
+`useParams()` from React Router types every value as `string | undefined` and exposes catch-alls as a slash-joined string at `params["*"]`. The [`useRouteParams`](../src/lib/useRouteParams.ts) hook takes a route literal and returns a precisely-typed object that matches Next.js's [dynamic-route shape](https://nextjs.org/docs/app/api-reference/file-conventions/dynamic-routes#typescript) — including `string[]` for catch-alls and optional keys (`?:`) for optional segments.
+
+| Route literal       | Returned shape                  |
+| ------------------- | ------------------------------- |
+| `posts/[postId]`    | `{ postId: string }`            |
+| `search/[[query]]`  | `{ query?: string }`            |
+| `docs/[...slug]`    | `{ slug: string[] }`            |
+| `files/[[...slug]]` | `{ slug?: string[] }`           |
+| `(marketing)/about` | `{}` (groups contribute nothing)|
+
+Pages and layouts also receive their parsed params as a `params` prop — the router wraps each page/layout component and injects them. Use `PageProps<S>` for the typed signature:
+
+```tsx
+import type { PageProps } from "../../../lib/useRouteParams";
+
+export default function PostPage({ params }: PageProps<"posts/[postId]">) {
+  // params: { postId: string }
+}
+```
+
+The prop is always passed, but components that don't need it can keep a no-arg signature (`function HomePage() { ... }`) — the extra prop is simply ignored. The `useRouteParams` hook remains available for components that prefer the hook style.
+
+Loaders use the same runtime extractor:
+
+```ts
+import { parseRouteParams } from "../../../lib/useRouteParams";
+
+export const loader: LoaderFunction = ({ params }) => {
+  const { postId } = parseRouteParams("posts/[postId]", params);
+  // postId: string
+};
+```
+
+The route literal isn't validated against the actual mounted route — passing `"posts/[wrongName]"` will compile but yield `undefined` at runtime.
+
 ## Caveats
 
-- **Catch-all parameters lose their name.** React Router's splat token is always `*`, so a folder named `[...slug]` produces `params["*"]` — not `params.slug`. The demo page at [`src/app/docs/[...slug]/page.tsx`](../src/app/docs/[...slug]/page.tsx) reflects this. If matching the Next.js shape matters, a thin wrapper hook can re-key it.
+- **Catch-all parameters lose their name at the RR layer.** React Router's splat token is always `*`, so a folder named `[...slug]` produces `params["*"]` — not `params.slug`. [`useRouteParams`](../src/lib/useRouteParams.ts) re-keys this and splits it into a `string[]` to match Next.js; reach for `useParams()` directly only if you need the raw RR shape.
 
 - **`loading.tsx` is visible only during sibling navigation under the same layout.** RR7's data router keeps the old UI mounted while new loaders run, so a deeper loading boundary doesn't render until _after_ the transition completes. Going `/posts/1 → /posts/2` shows it; going `/ → /posts/1` does not. The root layout compensates with a thin pulsing bar driven by `useNavigation()` so the initial transition is still visible.
 

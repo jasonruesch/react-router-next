@@ -4,11 +4,15 @@ import {
   Outlet,
   RouterProvider,
   useNavigation,
+  useParams,
 } from "react-router";
 import type { LoaderFunction, RouteObject } from "react-router";
+import { parseRouteParams } from "./useRouteParams";
+
+type RouteParamsRecord = Record<string, string | string[] | undefined>;
 
 type RouteModule = {
-  default?: ComponentType;
+  default?: ComponentType<{ params?: RouteParamsRecord }>;
   loader?: LoaderFunction;
 };
 
@@ -82,9 +86,22 @@ function LoadingBoundary({
   return nav.state === "loading" ? <Loading /> : <Outlet />;
 }
 
+function ComponentWithParams({
+  Component,
+  route,
+}: {
+  Component: ComponentType<{ params?: RouteParamsRecord }>;
+  route: string;
+}): ReactElement {
+  const rrParams = useParams();
+  const params = parseRouteParams(route, rrParams);
+  return <Component params={params} />;
+}
+
 function nodeToRoute(
   node: Node,
   segment: string | null,
+  path: string,
   NotFound: ComponentType | undefined,
 ): RouteObject[] {
   const Layout = node.files.layout?.default;
@@ -97,11 +114,18 @@ function nodeToRoute(
 
   const childRoutes: RouteObject[] = [];
   for (const [childSegment, childNode] of node.children) {
-    childRoutes.push(...nodeToRoute(childNode, childSegment, NotFound));
+    const childPath = path === "" ? childSegment : `${path}/${childSegment}`;
+    childRoutes.push(
+      ...nodeToRoute(childNode, childSegment, childPath, NotFound),
+    );
   }
 
-  const pageLeaf: RouteObject | null = Page
-    ? { index: true, element: <Page />, loader }
+  const pageEl = Page ? (
+    <ComponentWithParams Component={Page} route={path} />
+  ) : null;
+
+  const pageLeaf: RouteObject | null = pageEl
+    ? { index: true, element: pageEl, loader }
     : null;
 
   const inner: RouteObject[] = [];
@@ -123,15 +147,15 @@ function nodeToRoute(
     if (ErrorEl) route.errorElement = <ErrorEl />;
 
     if (Layout) {
-      route.element = <Layout />;
+      route.element = <ComponentWithParams Component={Layout} route={path} />;
       route.children = Loading
         ? [{ element: <LoadingBoundary Loading={Loading} />, children: inner }]
         : inner;
     } else if (Loading) {
       route.element = <LoadingBoundary Loading={Loading} />;
       route.children = inner;
-    } else if (Page && childRoutes.length === 0) {
-      route.element = <Page />;
+    } else if (pageEl && childRoutes.length === 0) {
+      route.element = pageEl;
       if (loader) route.loader = loader;
     } else if (inner.length > 0) {
       route.children = inner;
@@ -143,7 +167,7 @@ function nodeToRoute(
 function buildRoutes(): RouteObject[] {
   const tree = buildTree();
   const NotFound = tree.files["404"]?.default;
-  const [root] = nodeToRoute(tree, null, NotFound);
+  const [root] = nodeToRoute(tree, null, "", NotFound);
   if (NotFound) {
     (root.children ??= []).push({ path: "*", element: <NotFound /> });
   }

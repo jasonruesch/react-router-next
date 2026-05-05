@@ -9,7 +9,7 @@ export default function PostError() {
         ? `${error.status} ${error.statusText || ""}`.trim()
         : String(error);
   return (
-    <div className="rounded border border-red-300 bg-red-50 p-4">
+    <div className="rounded border border-red-300 p-4">
       <h2 className="text-lg font-semibold text-red-900 mb-1">
         Couldn't load this post
       </h2>
@@ -22,7 +22,7 @@ export default function PostError() {
         . The root layout and posts layout are still rendered — only the leaf
         was replaced.
       </p>
-      <Link to="/posts" className="text-blue-600 hover:underline text-sm">
+      <Link to="/posts" className="hover:underline text-sm">
         ← back to posts
       </Link>
     </div>

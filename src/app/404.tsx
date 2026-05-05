@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router";
 export default function NotFound() {
   const location = useLocation();
   return (
-    <div className="rounded border border-gray-200 p-6 text-center">
+    <div className="rounded border border-(--border) p-6 text-center">
       <h1 className="text-3xl font-semibold mb-2">404</h1>
       <p className="text-gray-600 mb-4">
         No route matches{" "}
@@ -16,7 +16,7 @@ export default function NotFound() {
         </code>
         .
       </p>
-      <Link to="/" className="text-blue-600 hover:underline">
+      <Link to="/" className="hover:underline">
         Go home
       </Link>
     </div>

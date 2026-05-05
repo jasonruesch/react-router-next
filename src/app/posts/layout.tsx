@@ -5,7 +5,7 @@ export default function PostsLayout() {
     <div>
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-semibold">Posts</h1>
-        <Link to="/posts" className="text-sm text-blue-600 hover:underline">
+        <Link to="/posts" className="text-sm hover:underline">
           ← all posts
         </Link>
       </div>
@@ -16,7 +16,7 @@ export default function PostsLayout() {
         </code>
         .
       </p>
-      <div className="rounded border border-gray-200 p-4">
+      <div className="rounded border border-(--border) p-4">
         <Outlet />
       </div>
     </div>

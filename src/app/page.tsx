@@ -93,7 +93,10 @@ export default function Home() {
       </p>
       <div className="space-y-6">
         {SECTIONS.map((s) => (
-          <section key={s.title} className="rounded border border-gray-200 p-4">
+          <section
+            key={s.title}
+            className="rounded border border-(--border) p-4"
+          >
             <h2 className="text-lg font-semibold">{s.title}</h2>
             <p className="text-xs uppercase tracking-wide text-gray-500 mt-0.5">
               {s.feature}
@@ -108,7 +111,7 @@ export default function Home() {
             <ul className="mt-3 space-y-1">
               {s.links.map((l) => (
                 <li key={l.to}>
-                  <Link to={l.to} className="text-blue-600 hover:underline">
+                  <Link to={l.to} className="hover:underline">
                     {l.label}
                   </Link>
                 </li>
