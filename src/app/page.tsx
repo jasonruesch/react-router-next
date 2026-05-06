@@ -17,10 +17,15 @@ const SECTIONS: Section[] = [
   {
     title: "Static pages inside a route group",
     feature: "(group)",
-    files: ["(marketing)/about/page.tsx", "(marketing)/pricing/page.tsx"],
+    files: [
+      "(marketing)/about/page.tsx",
+      "(marketing)/pricing/page.tsx",
+      "(marketing)/contact/page.tsx",
+    ],
     links: [
       { to: "/about", label: "/about" },
       { to: "/pricing", label: "/pricing" },
+      { to: "/contact", label: "/contact" },
     ],
   },
   {

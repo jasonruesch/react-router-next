@@ -1,7 +1,7 @@
 import type { LoaderFunction } from "react-router";
-import { POSTS } from "../loader";
+import { parseRouteParams } from "../../../lib/use-route-params";
 import type { Post } from "../loader";
-import { parseRouteParams } from "../../../lib/useRouteParams";
+import { POSTS } from "../loader";
 
 export const loader: LoaderFunction = async ({ params }) => {
   await new Promise((r) => setTimeout(r, 400));

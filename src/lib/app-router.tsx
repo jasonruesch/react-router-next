@@ -1,4 +1,5 @@
 import type { ComponentType, JSX, ReactElement } from "react";
+import type { LoaderFunction, RouteObject } from "react-router";
 import {
   createBrowserRouter,
   Outlet,
@@ -6,8 +7,7 @@ import {
   useNavigation,
   useParams,
 } from "react-router";
-import type { LoaderFunction, RouteObject } from "react-router";
-import { parseRouteParams } from "./useRouteParams";
+import { parseRouteParams } from "./use-route-params";
 
 type RouteParamsRecord = Record<string, string | string[] | undefined>;
 
