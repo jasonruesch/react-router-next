@@ -1,16 +1,17 @@
+import { FilePath } from "../../components/ui/code";
+import { SkeletonLine } from "../../components/ui/skeleton";
+import { Stack } from "../../components/ui/stack";
+import { Text } from "../../components/ui/text";
+
 export default function PostsLoading() {
   return (
-    <div className="text-gray-500">
-      <div className="h-4 w-1/3 bg-gray-700 rounded animate-pulse mb-2" />
-      <div className="h-4 w-2/3 bg-gray-700 rounded animate-pulse mb-2" />
-      <div className="h-4 w-1/2 bg-gray-700 rounded animate-pulse mb-4" />
-      <p className="text-sm">
-        Skeleton from{" "}
-        <code className="rounded bg-gray-100 px-1 py-0.5">
-          src/app/posts/loading.tsx
-        </code>
-        .
-      </p>
-    </div>
+    <Stack gap="sm">
+      <SkeletonLine width="1/3" />
+      <SkeletonLine width="2/3" />
+      <SkeletonLine width="1/2" />
+      <Text size="sm" tone="muted">
+        Skeleton from <FilePath>src/app/posts/loading.tsx</FilePath>.
+      </Text>
+    </Stack>
   );
 }

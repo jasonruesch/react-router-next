@@ -1,4 +1,8 @@
 import { useLoaderData } from "react-router";
+import { Code } from "../../../components/ui/code";
+import { Heading } from "../../../components/ui/heading";
+import { Stack } from "../../../components/ui/stack";
+import { Text } from "../../../components/ui/text";
 import type { Post } from "../loader";
 import type { PageProps } from "./page.types";
 
@@ -6,19 +10,19 @@ export default function PostPage({ params }: PageProps) {
   const post = useLoaderData() as Post;
   const { postId } = params;
   return (
-    <article>
-      <h2 className="text-xl font-semibold mb-2">{post.title}</h2>
-      <p className="text-gray-700 mb-4">{post.body}</p>
-      <dl className="text-xs text-gray-500 grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1">
+    <Stack as="article" gap="sm">
+      <Heading level={3}>{post.title}</Heading>
+      <Text>{post.body}</Text>
+      <dl className="m-0 grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1 text-xs text-muted-foreground">
         <dt>File</dt>
         <dd>
-          <code>src/app/posts/[postId]/page.tsx</code>
+          <Code variant="plain">src/app/posts/[postId]/page.tsx</Code>
         </dd>
         <dt>params.postId</dt>
         <dd>
-          <code>{postId}</code>
+          <Code variant="plain">{postId}</Code>
         </dd>
       </dl>
-    </article>
+    </Stack>
   );
 }

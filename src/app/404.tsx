@@ -1,24 +1,23 @@
-import { Link, useLocation } from "react-router";
+import { useLocation } from "react-router";
+import { Card } from "../components/ui/card";
+import { FilePath } from "../components/ui/code";
+import { Heading } from "../components/ui/heading";
+import { NavLink } from "../components/ui/nav";
+import { Stack } from "../components/ui/stack";
+import { Text } from "../components/ui/text";
 
 export default function NotFound() {
   const location = useLocation();
   return (
-    <div className="rounded border border-(--border) p-6 text-center">
-      <h1 className="text-3xl font-semibold mb-2">404</h1>
-      <p className="text-gray-600 mb-4">
-        No route matches{" "}
-        <code className="rounded bg-gray-100 px-1 py-0.5 text-sm">
-          {location.pathname}
-        </code>
-        . This page comes from{" "}
-        <code className="rounded bg-gray-100 px-1 py-0.5 text-sm">
-          src/app/404.tsx
-        </code>
-        .
-      </p>
-      <Link to="/" className="hover:underline">
-        Go home
-      </Link>
-    </div>
+    <Card padding="lg" align="center">
+      <Stack gap="sm" align="center">
+        <Heading level={1}>404</Heading>
+        <Text tone="muted">
+          No route matches <FilePath>{location.pathname}</FilePath>. This page
+          comes from <FilePath>src/app/404.tsx</FilePath>.
+        </Text>
+        <NavLink to="/">Go home</NavLink>
+      </Stack>
+    </Card>
   );
 }

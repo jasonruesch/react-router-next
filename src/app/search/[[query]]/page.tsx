@@ -1,4 +1,8 @@
-import { Link } from "react-router";
+import { Code, FilePath } from "../../../components/ui/code";
+import { NavLink } from "../../../components/ui/nav";
+import { PageHeader } from "../../../components/ui/page-header";
+import { Stack } from "../../../components/ui/stack";
+import { Text } from "../../../components/ui/text";
 import type { PageProps } from "./page.types";
 
 const SUGGESTIONS = ["react", "react-router", "vite", "tailwind"];
@@ -6,44 +10,47 @@ const SUGGESTIONS = ["react", "react-router", "vite", "tailwind"];
 export default function Search({ params }: PageProps) {
   const { query: q } = params;
   return (
-    <article>
-      <h1 className="text-2xl font-semibold mb-2">Search</h1>
-      <p className="text-gray-700 mb-3">
-        Folder:{" "}
-        <code className="rounded bg-gray-100 px-1 py-0.5 text-sm">
-          src/app/search/[[query]]/page.tsx
-        </code>
-        . Double brackets make the segment optional — <code>:query?</code> in
-        React Router terms.
-      </p>
+    <Stack as="article" gap="sm">
+      <PageHeader
+        title="Search"
+        level={2}
+        description={
+          <>
+            Folder: <FilePath>src/app/search/[[query]]/page.tsx</FilePath>.
+            Double brackets make the segment optional —{" "}
+            <Code variant="plain">:query?</Code> in React Router terms.
+          </>
+        }
+      />
       {q ? (
-        <p className="text-gray-700 mb-4">
-          Searching for{" "}
-          <code className="rounded bg-gray-100 px-1 py-0.5 text-sm">{q}</code>.
-        </p>
+        <Text>
+          Searching for <FilePath>{q}</FilePath>.
+        </Text>
       ) : (
-        <p className="text-gray-700 mb-4">
-          No query in the URL — <code>params.query</code> is{" "}
-          <code>undefined</code>.
-        </p>
+        <Text>
+          No query in the URL — <Code variant="plain">params.query</Code> is{" "}
+          <Code variant="plain">undefined</Code>.
+        </Text>
       )}
-      <div className="text-sm">
-        <p className="text-gray-500 mb-1">Try:</p>
-        <ul className="space-y-1">
+      <Stack gap="xs">
+        <Text size="sm" tone="subtle">
+          Try:
+        </Text>
+        <Stack as="ul" gap="xs" className="list-none m-0 p-0">
           {SUGGESTIONS.map((s) => (
             <li key={s}>
-              <Link to={`/search/${s}`} className="hover:underline">
+              <NavLink to={`/search/${s}`} size="sm">
                 /search/{s}
-              </Link>
+              </NavLink>
             </li>
           ))}
           <li>
-            <Link to="/search" className="hover:underline">
+            <NavLink to="/search" size="sm">
               /search (clear)
-            </Link>
+            </NavLink>
           </li>
-        </ul>
-      </div>
-    </article>
+        </Stack>
+      </Stack>
+    </Stack>
   );
 }

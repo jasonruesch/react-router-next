@@ -1,36 +1,37 @@
-import { Link, useLoaderData } from "react-router";
+import { useLoaderData } from "react-router";
+import { FilePath } from "../../components/ui/code";
+import { NavLink } from "../../components/ui/nav";
+import { Stack } from "../../components/ui/stack";
+import { Text } from "../../components/ui/text";
 import type { Post } from "./loader";
 
 export default function PostsIndex() {
   const posts = useLoaderData() as Post[];
   return (
-    <div>
-      <p className="text-gray-700 mb-4">
+    <Stack gap="md">
+      <Text>
         Loaded {posts.length} posts via{" "}
-        <code className="rounded bg-gray-100 px-1 py-0.5 text-sm">
-          src/app/posts/loader.ts
-        </code>
-        . Click one — sibling navigation triggers the loading skeleton from{" "}
-        <code className="rounded bg-gray-100 px-1 py-0.5 text-sm">
-          loading.tsx
-        </code>
-        .
-      </p>
-      <ul className="divide-y divide-(--border)">
+        <FilePath>src/app/posts/loader.ts</FilePath>. Click one — sibling
+        navigation triggers the loading skeleton from{" "}
+        <FilePath>loading.tsx</FilePath>.
+      </Text>
+      <ul className="m-0 p-0 list-none divide-y divide-border">
         {posts.map((p) => (
           <li key={p.id} className="py-2">
-            <Link to={`/posts/${p.id}`} className="hover:underline">
+            <NavLink to={`/posts/${p.id}`}>
               {p.id}. {p.title}
-            </Link>
-            <p className="text-sm text-gray-600">{p.body}</p>
+            </NavLink>
+            <Text size="sm" tone="muted">
+              {p.body}
+            </Text>
           </li>
         ))}
         <li className="py-2">
-          <Link to="/posts/999" className="text-red-600 hover:underline">
+          <NavLink to="/posts/999" tone="destructive">
             999. (loader throws — exercises error.tsx)
-          </Link>
+          </NavLink>
         </li>
       </ul>
-    </div>
+    </Stack>
   );
 }

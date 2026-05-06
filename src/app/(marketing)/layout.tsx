@@ -1,16 +1,17 @@
 import { Outlet } from "react-router";
+import { Code, FilePath } from "../../components/ui/code";
+import { Stack } from "../../components/ui/stack";
+import { Text } from "../../components/ui/text";
 
 export default function MarketingLayout() {
   return (
-    <div>
-      <p className="text-xs text-gray-500 mb-4">
-        Layout from{" "}
-        <code className="rounded bg-gray-100 px-1 py-0.5">
-          src/app/(marketing)/layout.tsx
-        </code>{" "}
-        — <code>(marketing)</code> is a route group, invisible to the URL.
-      </p>
+    <Stack gap="md">
+      <Text size="xs" tone="muted">
+        Layout from <FilePath>src/app/(marketing)/layout.tsx</FilePath> —{" "}
+        <Code variant="plain">(marketing)</Code> is a route group, invisible to
+        the URL.
+      </Text>
       <Outlet />
-    </div>
+    </Stack>
   );
 }

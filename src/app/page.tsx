@@ -1,4 +1,10 @@
-import { Link } from "react-router";
+import { Card } from "../components/ui/card";
+import { Code, FilePath } from "../components/ui/code";
+import { Heading } from "../components/ui/heading";
+import { NavLink } from "../components/ui/nav";
+import { PageHeader } from "../components/ui/page-header";
+import { Stack } from "../components/ui/stack";
+import { Text } from "../components/ui/text";
 
 type Section = {
   title: string;
@@ -81,45 +87,47 @@ const SECTIONS: Section[] = [
 
 export default function Home() {
   return (
-    <div>
-      <h1 className="text-3xl font-semibold mb-2">App Router Demo</h1>
-      <p className="text-gray-600 mb-8">
-        File-based router on top of React Router 7. Every link below exercises a
-        feature implemented in{" "}
-        <code className="rounded bg-gray-100 px-1 py-0.5 text-sm">
-          src/lib/AppRouter.tsx
-        </code>
-        .
-      </p>
-      <div className="space-y-6">
+    <Stack gap="lg">
+      <PageHeader
+        title="App Router Demo"
+        description={
+          <>
+            File-based router on top of React Router 7. Every link below
+            exercises a feature implemented in{" "}
+            <FilePath>src/lib/AppRouter.tsx</FilePath>.
+          </>
+        }
+      />
+      <Stack gap="lg">
         {SECTIONS.map((s) => (
-          <section
-            key={s.title}
-            className="rounded border border-(--border) p-4"
-          >
-            <h2 className="text-lg font-semibold">{s.title}</h2>
-            <p className="text-xs uppercase tracking-wide text-gray-500 mt-0.5">
-              {s.feature}
-            </p>
-            <ul className="mt-3 text-xs text-gray-500 space-y-0.5">
-              {s.files.map((f) => (
-                <li key={f}>
-                  <code>src/app/{f}</code>
-                </li>
-              ))}
-            </ul>
-            <ul className="mt-3 space-y-1">
-              {s.links.map((l) => (
-                <li key={l.to}>
-                  <Link to={l.to} className="hover:underline">
-                    {l.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </section>
+          <Card key={s.title} as="section">
+            <Stack gap="sm">
+              <Heading level={4}>{s.title}</Heading>
+              <Text size="xs" tone="muted" transform="uppercase">
+                {s.feature}
+              </Text>
+              <Stack as="ul" gap="xs" className="list-none p-0 m-0">
+                {s.files.map((f) => (
+                  <li key={f}>
+                    <Text as="span" size="xs" tone="muted">
+                      <Code variant="plain">src/app/{f}</Code>
+                    </Text>
+                  </li>
+                ))}
+              </Stack>
+              <Stack as="ul" gap="xs" className="list-none p-0 m-0">
+                {s.links.map((l) => (
+                  <li key={l.to}>
+                    <NavLink to={l.to} size="sm">
+                      {l.label}
+                    </NavLink>
+                  </li>
+                ))}
+              </Stack>
+            </Stack>
+          </Card>
         ))}
-      </div>
-    </div>
+      </Stack>
+    </Stack>
   );
 }

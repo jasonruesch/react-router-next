@@ -1,27 +1,46 @@
+import { Card } from "../../../components/ui/card";
+import { Code, FilePath } from "../../../components/ui/code";
+import { Heading } from "../../../components/ui/heading";
+import { PageHeader } from "../../../components/ui/page-header";
+import { Stack } from "../../../components/ui/stack";
+import { Text } from "../../../components/ui/text";
+
+const TIERS = [
+  { name: "Hobby", price: "$0", blurb: "For tinkering." },
+  { name: "Pro", price: "$0", blurb: "Also for tinkering." },
+];
+
 export default function Pricing() {
   return (
-    <article>
-      <h1 className="text-2xl font-semibold mb-2">Pricing</h1>
-      <p className="text-gray-700 mb-3">
-        This page lives at{" "}
-        <code className="rounded bg-gray-100 px-1 py-0.5 text-sm">
-          src/app/(marketing)/pricing/page.tsx
-        </code>{" "}
-        and is reachable at <code>/pricing</code> — same{" "}
-        <code>(marketing)</code> route group as <code>/about</code>.
-      </p>
-      <ul className="grid grid-cols-2 gap-4 mt-6">
-        <li className="rounded border border-(--border) p-4">
-          <h2 className="font-semibold">Hobby</h2>
-          <p className="text-2xl mt-1">$0</p>
-          <p className="text-sm text-gray-600 mt-2">For tinkering.</p>
-        </li>
-        <li className="rounded border border-(--border) p-4">
-          <h2 className="font-semibold">Pro</h2>
-          <p className="text-2xl mt-1">$0</p>
-          <p className="text-sm text-gray-600 mt-2">Also for tinkering.</p>
-        </li>
+    <Stack as="article" gap="md">
+      <PageHeader
+        title="Pricing"
+        level={2}
+        description={
+          <>
+            This page lives at{" "}
+            <FilePath>src/app/(marketing)/pricing/page.tsx</FilePath> and is
+            reachable at <Code variant="plain">/pricing</Code> — same{" "}
+            <Code variant="plain">(marketing)</Code> route group as{" "}
+            <Code variant="plain">/about</Code>.
+          </>
+        }
+      />
+      <ul className="grid grid-cols-2 gap-4 m-0 p-0 list-none">
+        {TIERS.map((t) => (
+          <Card key={t.name} as="li">
+            <Stack gap="xs">
+              <Heading level={4}>{t.name}</Heading>
+              <Text size="lg" tone="default">
+                {t.price}
+              </Text>
+              <Text size="sm" tone="muted">
+                {t.blurb}
+              </Text>
+            </Stack>
+          </Card>
+        ))}
       </ul>
-    </article>
+    </Stack>
   );
 }
