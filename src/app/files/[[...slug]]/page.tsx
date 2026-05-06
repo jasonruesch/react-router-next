@@ -1,9 +1,7 @@
 import { Link } from "react-router";
-import type { PageProps } from "../../../lib/useRouteParams";
+import type { PageProps } from "./page.types";
 
-export default function FilesOptionalCatchAll({
-  params,
-}: PageProps<"files/[[...slug]]">) {
+export default function FilesOptionalCatchAll({ params }: PageProps) {
   const { slug } = params;
   return (
     <article>

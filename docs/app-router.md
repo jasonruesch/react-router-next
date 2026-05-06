@@ -39,26 +39,26 @@ src/app/
 
 ## Segment conventions
 
-| Folder name  | URL segment                                                         |
-| ------------ | ------------------------------------------------------------------- |
-| `users/`     | `/users`                                                            |
-| `[id]/`      | `/:id` (dynamic)                                                    |
-| `[[id]]/`    | `/:id?` (optional)                                                  |
-| `[...slug]/` | `/*` (catch-all — matched value at `params["*"]`; the bare parent path 404s, matching Next.js — the router injects an `index` sibling that renders the 404 element) |
-| `[[...slug]]/` | bare path **and** `/*` (optional catch-all — emitted as a sibling index route + splat route, both pointing at the same `page.tsx`) |
-| `(group)/`   | nothing (route group; folder exists but contributes no URL segment) |
+| Folder name    | URL segment                                                                                                                                                         |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `users/`       | `/users`                                                                                                                                                            |
+| `[id]/`        | `/:id` (dynamic)                                                                                                                                                    |
+| `[[id]]/`      | `/:id?` (optional)                                                                                                                                                  |
+| `[...slug]/`   | `/*` (catch-all — matched value at `params["*"]`; the bare parent path 404s, matching Next.js — the router injects an `index` sibling that renders the 404 element) |
+| `[[...slug]]/` | bare path **and** `/*` (optional catch-all — emitted as a sibling index route + splat route, both pointing at the same `page.tsx`)                                  |
+| `(group)/`     | nothing (route group; folder exists but contributes no URL segment)                                                                                                 |
 
 ## Typed params
 
 `useParams()` from React Router types every value as `string | undefined` and exposes catch-alls as a slash-joined string at `params["*"]`. The [`useRouteParams`](../src/lib/useRouteParams.ts) hook takes a route literal and returns a precisely-typed object that matches Next.js's [dynamic-route shape](https://nextjs.org/docs/app/api-reference/file-conventions/dynamic-routes#typescript) — including `string[]` for catch-alls and optional keys (`?:`) for optional segments.
 
-| Route literal       | Returned shape                  |
-| ------------------- | ------------------------------- |
-| `posts/[postId]`    | `{ postId: string }`            |
-| `search/[[query]]`  | `{ query?: string }`            |
-| `docs/[...slug]`    | `{ slug: string[] }`            |
-| `files/[[...slug]]` | `{ slug?: string[] }`           |
-| `(marketing)/about` | `{}` (groups contribute nothing)|
+| Route literal       | Returned shape                   |
+| ------------------- | -------------------------------- |
+| `posts/[postId]`    | `{ postId: string }`             |
+| `search/[[query]]`  | `{ query?: string }`             |
+| `docs/[...slug]`    | `{ slug: string[] }`             |
+| `files/[[...slug]]` | `{ slug?: string[] }`            |
+| `(marketing)/about` | `{}` (groups contribute nothing) |
 
 Pages and layouts also receive their parsed params as a `params` prop — the router wraps each page/layout component and injects them. Use `PageProps<S>` for the typed signature:
 

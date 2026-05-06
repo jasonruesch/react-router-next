@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "typegen": "node ./src/lib/typegen.mjs",
+    "prebuild": "npm run typegen",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"

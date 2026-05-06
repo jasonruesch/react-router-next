@@ -1,10 +1,8 @@
 import { useLoaderData } from "react-router";
 import type { Post } from "../loader";
-import type { PageProps } from "../../../lib/useRouteParams";
+import type { PageProps } from "./page.types";
 
-export default function PostPage({
-  params,
-}: PageProps<"posts/[postId]">) {
+export default function PostPage({ params }: PageProps) {
   const post = useLoaderData() as Post;
   const { postId } = params;
   return (

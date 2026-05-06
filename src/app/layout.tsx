@@ -16,6 +16,9 @@ export default function RootLayout() {
             <Link to="/pricing" className="hover:underline">
               Pricing
             </Link>
+            <Link to="/contact" className="hover:underline">
+              Contact
+            </Link>
             <Link to="/posts" className="hover:underline">
               Posts
             </Link>

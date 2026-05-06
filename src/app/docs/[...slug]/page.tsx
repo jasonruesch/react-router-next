@@ -1,7 +1,7 @@
 import { Link } from "react-router";
-import type { PageProps } from "../../../lib/useRouteParams";
+import type { PageProps } from "./page.types";
 
-export default function DocsCatchAll({ params }: PageProps<"docs/[...slug]">) {
+export default function DocsCatchAll({ params }: PageProps) {
   const { slug } = params;
   return (
     <article>

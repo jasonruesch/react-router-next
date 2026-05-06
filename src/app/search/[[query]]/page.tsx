@@ -1,9 +1,9 @@
 import { Link } from "react-router";
-import type { PageProps } from "../../../lib/useRouteParams";
+import type { PageProps } from "./page.types";
 
 const SUGGESTIONS = ["react", "react-router", "vite", "tailwind"];
 
-export default function Search({ params }: PageProps<"search/[[query]]">) {
+export default function Search({ params }: PageProps) {
   const { query: q } = params;
   return (
     <article>
