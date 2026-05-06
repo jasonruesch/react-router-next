@@ -1,9 +1,5 @@
 import { cva, type VariantProps } from "class-variance-authority";
-import {
-  useState,
-  type ComponentPropsWithoutRef,
-  type ReactNode,
-} from "react";
+import { useState, type ComponentPropsWithoutRef, type ReactNode } from "react";
 import { Link, type LinkProps, useLocation } from "react-router";
 import { cn } from "../../lib/cn";
 

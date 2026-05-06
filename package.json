@@ -7,9 +7,12 @@
     "dev": "vite",
     "start": "npm run dev",
     "typegen": "node ./src/lib/typegen.mjs",
+    "typegen:clean": "node ./src/lib/typegen.mjs --clean",
     "prebuild": "npm run typegen",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
+    "format:check": "prettier --check .",
+    "format": "prettier --write .",
     "preview": "vite preview"
   },
   "dependencies": {

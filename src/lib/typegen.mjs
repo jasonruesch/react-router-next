@@ -1,9 +1,9 @@
-import { readdirSync, readFileSync, writeFileSync, unlinkSync } from "node:fs";
+import { readdirSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const PAGE_RE = /^(page|layout)\.(tsx|jsx|ts|js)$/;
-const TYPES_RE = /^(page|layout)\.types\.ts$/;
+const TYPES_RE = /^route\.types\.ts$/;
 
 function toPosix(p) {
   return p.split("\\").join("/");
@@ -14,20 +14,19 @@ function findFiles(appDir) {
     recursive: true,
     withFileTypes: true,
   });
-  const sources = [];
+  const sourceDirs = new Set();
   const stale = [];
   for (const entry of entries) {
     if (!entry.isFile()) continue;
     const dir = entry.parentPath ?? entry.path;
     const full = join(dir, entry.name);
     if (PAGE_RE.test(entry.name)) {
-      const kind = entry.name.startsWith("page") ? "page" : "layout";
-      sources.push({ dir, full, kind });
+      sourceDirs.add(dir);
     } else if (TYPES_RE.test(entry.name)) {
       stale.push(full);
     }
   }
-  return { sources, stale };
+  return { sourceDirs: [...sourceDirs], stale };
 }
 
 function routeKeyFor(appDir, fileDir) {
@@ -49,15 +48,17 @@ import {
   type RouteParams as RouteParamsBase,
 } from "${libImport}";
 
-export type RouteParams = RouteParamsBase<"${routeKey}">;
-export type PageProps = { params: RouteParams };
+const PATH = "${routeKey}";
+
+export type RouteParams = RouteParamsBase<typeof PATH>;
+export type RouteProps = { params: RouteParams };
 
 export function useRouteParams(): RouteParams {
-  return useRouteParamsBase("${routeKey}");
+  return useRouteParamsBase(PATH);
 }
 
 export function generate(params: RouteParams): string {
-  return generateUrl("${routeKey}", params);
+  return generateUrl(PATH, params);
 }
 `;
 }
@@ -73,15 +74,35 @@ function writeIfChanged(path, contents) {
   return true;
 }
 
-export function generateRouteTypes({ appDir, libFile } = {}) {
+export function generateRouteTypes({ appDir, libFile, clean = false } = {}) {
   const root = resolve(appDir ?? "src/app");
-  const lib = resolve(libFile ?? "src/lib/useRouteParams.ts");
-  const { sources, stale } = findFiles(root);
+  const lib = resolve(libFile ?? "src/lib/use-route-params.ts");
+  const { sourceDirs, stale } = findFiles(root);
+
+  if (clean) {
+    let removed = 0;
+    for (const dir of sourceDirs) {
+      stale.push(join(dir, "route.types.ts"));
+    }
+    const seen = new Set();
+    for (const s of stale) {
+      const key = toPosix(s);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      try {
+        unlinkSync(s);
+        removed++;
+      } catch {
+        // already gone
+      }
+    }
+    return { written: 0, removed, total: 0 };
+  }
 
   const wanted = new Set();
   let written = 0;
-  for (const { dir, kind } of sources) {
-    const out = join(dir, `${kind}.types.ts`);
+  for (const dir of sourceDirs) {
+    const out = join(dir, "route.types.ts");
     wanted.add(toPosix(out));
     const contents = renderTemplate({
       libImport: libImportFor(dir, lib),
@@ -108,11 +129,19 @@ const isCli =
 if (isCli) {
   const here = dirname(fileURLToPath(import.meta.url));
   const projectRoot = resolve(here, "..", "..");
+  const clean = process.argv
+    .slice(2)
+    .some((a) => a === "--clean" || a === "-c");
   const result = generateRouteTypes({
     appDir: join(projectRoot, "src", "app"),
-    libFile: join(projectRoot, "src", "lib", "useRouteParams.ts"),
+    libFile: join(projectRoot, "src", "lib", "use-route-params.ts"),
+    clean,
   });
-  console.log(
-    `[typegen] ${result.total} type files (${result.written} written, ${result.removed} removed)`,
-  );
+  if (clean) {
+    console.log(`[typegen] cleaned ${result.removed} type file(s)`);
+  } else {
+    console.log(
+      `[typegen] ${result.total} type files (${result.written} written, ${result.removed} removed)`,
+    );
+  }
 }

@@ -3,11 +3,11 @@ import { NavLink } from "../../../components/ui/nav";
 import { PageHeader } from "../../../components/ui/page-header";
 import { Stack } from "../../../components/ui/stack";
 import { Text } from "../../../components/ui/text";
-import type { PageProps } from "./page.types";
+import type { RouteProps } from "./route.types";
 
 const SUGGESTIONS = ["react", "react-router", "vite", "tailwind"];
 
-export default function Search({ params }: PageProps) {
+export default function Search({ params }: RouteProps) {
   const { query: q } = params;
   return (
     <Stack as="article" gap="sm">

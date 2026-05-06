@@ -20,7 +20,7 @@ export type RouteParams<S extends string> = string extends S
   ? Record<string, string | string[] | undefined>
   : { [K in keyof ParseRoute<S>]: ParseRoute<S>[K] };
 
-export type PageProps<S extends string> = {
+export type RouteProps<S extends string> = {
   params: RouteParams<S>;
 };
 

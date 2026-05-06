@@ -4,9 +4,9 @@ import { Heading } from "../../../components/ui/heading";
 import { Stack } from "../../../components/ui/stack";
 import { Text } from "../../../components/ui/text";
 import type { Post } from "../loader";
-import type { PageProps } from "./page.types";
+import type { RouteProps } from "./route.types";
 
-export default function PostPage({ params }: PageProps) {
+export default function PostPage({ params }: RouteProps) {
   const post = useLoaderData() as Post;
   const { postId } = params;
   return (

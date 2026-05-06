@@ -3,9 +3,9 @@ import { NavLink } from "../../../components/ui/nav";
 import { PageHeader } from "../../../components/ui/page-header";
 import { Stack } from "../../../components/ui/stack";
 import { Text } from "../../../components/ui/text";
-import type { PageProps } from "./page.types";
+import type { RouteProps } from "./route.types";
 
-export default function FilesOptionalCatchAll({ params }: PageProps) {
+export default function FilesOptionalCatchAll({ params }: RouteProps) {
   const { slug } = params;
   return (
     <Stack as="article" gap="sm">
