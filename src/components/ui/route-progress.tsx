@@ -9,7 +9,10 @@ export function RouteProgress({ className }: { className?: string }) {
       role="progressbar"
       aria-busy="true"
       aria-label="Loading route"
-      className={cn("h-0.5 bg-primary animate-pulse", className)}
+      className={cn(
+        "fixed inset-x-0 top-0 z-50 h-0.5 bg-primary animate-pulse",
+        className,
+      )}
     />
   );
 }

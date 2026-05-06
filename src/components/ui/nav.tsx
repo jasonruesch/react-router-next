@@ -42,11 +42,13 @@ export function NavLink({
   size,
   weight,
   className,
+  viewTransition = true,
   ...props
 }: NavLinkProps) {
   return (
     <Link
       className={cn(navLinkVariants({ tone, size, weight }), className)}
+      viewTransition={viewTransition}
       {...props}
     />
   );
@@ -74,15 +76,12 @@ type TopNavProps = {
   brand: ReactNode;
   links: ReactNode;
   actions?: ReactNode;
-  /** Optional progress indicator rendered as a thin bar below the nav. */
-  progress?: ReactNode;
 } & ComponentPropsWithoutRef<"header">;
 
 export function TopNav({
   brand,
   links,
   actions,
-  progress,
   className,
   ...props
 }: TopNavProps) {
@@ -157,7 +156,6 @@ export function TopNav({
           </div>
         </nav>
       ) : null}
-      {progress}
     </header>
   );
 }

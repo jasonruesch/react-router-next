@@ -17,6 +17,7 @@ const NAV_LINKS: { to: string; label: string }[] = [
 export default function RootLayout() {
   return (
     <div className="flex min-h-screen flex-col">
+      <RouteProgress />
       <TopNav
         brand={
           <NavLink to="/" tone="default" weight="semibold">
@@ -29,7 +30,6 @@ export default function RootLayout() {
           </NavLink>
         ))}
         actions={<ThemeToggle />}
-        progress={<RouteProgress />}
       />
       <Container as="main" className="py-6 sm:py-8">
         <Outlet />
