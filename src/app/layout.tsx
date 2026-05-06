@@ -7,7 +7,6 @@ import { RouteProgress } from "../components/ui/route-progress";
 const NAV_LINKS: { to: string; label: string }[] = [
   { to: "/about", label: "About" },
   { to: "/pricing", label: "Pricing" },
-  { to: "/contact", label: "Contact" },
   { to: "/posts", label: "Posts" },
   { to: "/docs/intro", label: "Docs" },
   { to: "/search", label: "Search" },
