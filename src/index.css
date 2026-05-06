@@ -25,21 +25,35 @@
 }
 
 :root {
-  --background: var(--color-white);
-  --foreground: var(--color-zinc-950);
-  --muted: var(--color-stone-100);
-  --muted-foreground: var(--color-zinc-500);
-  --border: var(--color-zinc-200);
-  --card: var(--color-white);
-  --card-foreground: var(--color-zinc-950);
-  --primary: var(--color-purple-500);
-  --primary-foreground: var(--color-white);
-  --accent: --alpha(var(--color-purple-500) / 10%);
-  --accent-foreground: var(--color-purple-500);
-  --destructive: var(--color-red-600);
-  --destructive-foreground: var(--color-white);
-  --ring: --alpha(var(--color-purple-500) / 50%);
-  --shadow: rgb(0 0 0 / 0.1) 0 10px 15px -3px, rgb(0 0 0 / 0.05) 0 4px 6px -2px;
+  --background: light-dark(var(--color-white), var(--color-zinc-900));
+  --foreground: light-dark(var(--color-zinc-950), var(--color-zinc-100));
+  --muted: light-dark(var(--color-stone-100), var(--color-zinc-800));
+  --muted-foreground: light-dark(var(--color-zinc-500), var(--color-zinc-400));
+  --border: light-dark(var(--color-zinc-200), var(--color-zinc-700));
+  --card: light-dark(var(--color-white), var(--color-zinc-900));
+  --card-foreground: light-dark(var(--color-zinc-950), var(--color-zinc-100));
+  --primary: light-dark(var(--color-purple-500), var(--color-purple-400));
+  --primary-foreground: light-dark(var(--color-white), var(--color-zinc-900));
+  --accent: light-dark(
+    --alpha(var(--color-purple-500) / 10%),
+    --alpha(var(--color-purple-400) / 15%)
+  );
+  --accent-foreground: light-dark(
+    var(--color-purple-500),
+    var(--color-purple-400)
+  );
+  --destructive: light-dark(var(--color-red-600), var(--color-red-400));
+  --destructive-foreground: light-dark(
+    var(--color-white),
+    var(--color-zinc-900)
+  );
+  --ring: light-dark(
+    --alpha(var(--color-purple-500) / 50%),
+    --alpha(var(--color-purple-400) / 50%)
+  );
+  --shadow-near: light-dark(rgb(0 0 0 / 0.1), rgb(0 0 0 / 0.4));
+  --shadow-far: light-dark(rgb(0 0 0 / 0.05), rgb(0 0 0 / 0.25));
+  --shadow: var(--shadow-near) 0 10px 15px -3px, var(--shadow-far) 0 4px 6px -2px;
 
   --font-sans: system-ui, "Segoe UI", Roboto, sans-serif;
   --font-mono: ui-monospace, Consolas, monospace;
@@ -63,46 +77,14 @@
   }
 }
 
-/* Dark values: applied automatically when the OS prefers dark, unless the user
-   explicitly chose light (.light on <html>). The provider sets .light or .dark
-   only when overriding the system preference. */
-@media (prefers-color-scheme: dark) {
-  :root:not(.light) {
-    --background: var(--color-zinc-900);
-    --foreground: var(--color-zinc-100);
-    --muted: var(--color-zinc-800);
-    --muted-foreground: var(--color-zinc-400);
-    --border: var(--color-zinc-700);
-    --card: var(--color-zinc-900);
-    --card-foreground: var(--color-zinc-100);
-    --primary: var(--color-purple-400);
-    --primary-foreground: var(--color-zinc-900);
-    --accent: --alpha(var(--color-purple-400) / 15%);
-    --accent-foreground: var(--color-purple-400);
-    --destructive: var(--color-red-400);
-    --destructive-foreground: var(--color-zinc-900);
-    --ring: --alpha(var(--color-purple-400) / 50%);
-    --shadow:
-      rgb(0 0 0 / 0.4) 0 10px 15px -3px, rgb(0 0 0 / 0.25) 0 4px 6px -2px;
-  }
+/* The provider sets .light or .dark only when overriding the system preference;
+   light-dark() picks the matching value via color-scheme. */
+.light {
+  color-scheme: only light;
 }
 
 .dark {
-  --background: var(--color-zinc-900);
-  --foreground: var(--color-zinc-100);
-  --muted: var(--color-zinc-800);
-  --muted-foreground: var(--color-zinc-400);
-  --border: var(--color-zinc-700);
-  --card: var(--color-zinc-900);
-  --card-foreground: var(--color-zinc-100);
-  --primary: var(--color-purple-400);
-  --primary-foreground: var(--color-zinc-900);
-  --accent: --alpha(var(--color-purple-400) / 15%);
-  --accent-foreground: var(--color-purple-400);
-  --destructive: var(--color-red-400);
-  --destructive-foreground: var(--color-zinc-900);
-  --ring: --alpha(var(--color-purple-400) / 50%);
-  --shadow: rgb(0 0 0 / 0.4) 0 10px 15px -3px, rgb(0 0 0 / 0.25) 0 4px 6px -2px;
+  color-scheme: only dark;
 }
 
 body {
