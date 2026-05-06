@@ -25,20 +25,20 @@
 }
 
 :root {
-  --background: #fff;
-  --foreground: #08060d;
-  --muted: #f4f3ec;
-  --muted-foreground: #6b6375;
-  --border: #e5e4e7;
-  --card: #fff;
-  --card-foreground: #08060d;
-  --primary: #aa3bff;
-  --primary-foreground: #fff;
-  --accent: rgb(170 59 255 / 0.1);
-  --accent-foreground: #aa3bff;
-  --destructive: #dc2626;
-  --destructive-foreground: #fff;
-  --ring: rgb(170 59 255 / 0.5);
+  --background: var(--color-white);
+  --foreground: var(--color-zinc-950);
+  --muted: var(--color-stone-100);
+  --muted-foreground: var(--color-zinc-500);
+  --border: var(--color-zinc-200);
+  --card: var(--color-white);
+  --card-foreground: var(--color-zinc-950);
+  --primary: var(--color-purple-500);
+  --primary-foreground: var(--color-white);
+  --accent: --alpha(var(--color-purple-500) / 10%);
+  --accent-foreground: var(--color-purple-500);
+  --destructive: var(--color-red-600);
+  --destructive-foreground: var(--color-white);
+  --ring: --alpha(var(--color-purple-500) / 50%);
   --shadow: rgb(0 0 0 / 0.1) 0 10px 15px -3px, rgb(0 0 0 / 0.05) 0 4px 6px -2px;
 
   --font-sans: system-ui, "Segoe UI", Roboto, sans-serif;
@@ -68,40 +68,40 @@
    only when overriding the system preference. */
 @media (prefers-color-scheme: dark) {
   :root:not(.light) {
-    --background: #16171d;
-    --foreground: #f3f4f6;
-    --muted: #1f2028;
-    --muted-foreground: #9ca3af;
-    --border: #2e303a;
-    --card: #16171d;
-    --card-foreground: #f3f4f6;
-    --primary: #c084fc;
-    --primary-foreground: #16171d;
-    --accent: rgb(192 132 252 / 0.15);
-    --accent-foreground: #c084fc;
-    --destructive: #f87171;
-    --destructive-foreground: #16171d;
-    --ring: rgb(192 132 252 / 0.5);
+    --background: var(--color-zinc-900);
+    --foreground: var(--color-zinc-100);
+    --muted: var(--color-zinc-800);
+    --muted-foreground: var(--color-zinc-400);
+    --border: var(--color-zinc-700);
+    --card: var(--color-zinc-900);
+    --card-foreground: var(--color-zinc-100);
+    --primary: var(--color-purple-400);
+    --primary-foreground: var(--color-zinc-900);
+    --accent: --alpha(var(--color-purple-400) / 15%);
+    --accent-foreground: var(--color-purple-400);
+    --destructive: var(--color-red-400);
+    --destructive-foreground: var(--color-zinc-900);
+    --ring: --alpha(var(--color-purple-400) / 50%);
     --shadow:
       rgb(0 0 0 / 0.4) 0 10px 15px -3px, rgb(0 0 0 / 0.25) 0 4px 6px -2px;
   }
 }
 
 .dark {
-  --background: #16171d;
-  --foreground: #f3f4f6;
-  --muted: #1f2028;
-  --muted-foreground: #9ca3af;
-  --border: #2e303a;
-  --card: #16171d;
-  --card-foreground: #f3f4f6;
-  --primary: #c084fc;
-  --primary-foreground: #16171d;
-  --accent: rgb(192 132 252 / 0.15);
-  --accent-foreground: #c084fc;
-  --destructive: #f87171;
-  --destructive-foreground: #16171d;
-  --ring: rgb(192 132 252 / 0.5);
+  --background: var(--color-zinc-900);
+  --foreground: var(--color-zinc-100);
+  --muted: var(--color-zinc-800);
+  --muted-foreground: var(--color-zinc-400);
+  --border: var(--color-zinc-700);
+  --card: var(--color-zinc-900);
+  --card-foreground: var(--color-zinc-100);
+  --primary: var(--color-purple-400);
+  --primary-foreground: var(--color-zinc-900);
+  --accent: --alpha(var(--color-purple-400) / 15%);
+  --accent-foreground: var(--color-purple-400);
+  --destructive: var(--color-red-400);
+  --destructive-foreground: var(--color-zinc-900);
+  --ring: --alpha(var(--color-purple-400) / 50%);
   --shadow: rgb(0 0 0 / 0.4) 0 10px 15px -3px, rgb(0 0 0 / 0.25) 0 4px 6px -2px;
 }
 
