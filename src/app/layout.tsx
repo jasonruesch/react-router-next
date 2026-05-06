@@ -31,7 +31,7 @@ export default function RootLayout() {
         actions={<ThemeToggle />}
         progress={<RouteProgress />}
       />
-      <Container as="main" className="py-8">
+      <Container as="main" className="py-6 sm:py-8">
         <Outlet />
       </Container>
     </div>

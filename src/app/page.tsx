@@ -115,7 +115,9 @@ export default function Home() {
                 {s.files.map((f) => (
                   <li key={f}>
                     <Text as="span" size="xs" tone="muted">
-                      <Code variant="plain">src/app/{f}</Code>
+                      <Code variant="plain" className="break-all">
+                        src/app/{f}
+                      </Code>
                     </Text>
                   </li>
                 ))}

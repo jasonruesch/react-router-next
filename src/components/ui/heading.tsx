@@ -7,10 +7,10 @@ const headingVariants = cva(
   {
     variants: {
       level: {
-        1: "text-3xl",
-        2: "text-2xl",
-        3: "text-xl",
-        4: "text-lg",
+        1: "text-2xl sm:text-3xl",
+        2: "text-xl sm:text-2xl",
+        3: "text-lg sm:text-xl",
+        4: "text-base sm:text-lg",
       },
     },
     defaultVariants: { level: 2 },

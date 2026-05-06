@@ -21,8 +21,8 @@ export function PageHeader({
   className,
 }: PageHeaderProps) {
   return (
-    <header className={cn("mb-6 flex flex-col gap-2", className)}>
-      <div className="flex items-center justify-between gap-4">
+    <header className={cn("mb-4 flex flex-col gap-2 sm:mb-6", className)}>
+      <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2 sm:items-center">
         <Heading level={level}>{title}</Heading>
         {action ? <div className="shrink-0">{action}</div> : null}
       </div>
