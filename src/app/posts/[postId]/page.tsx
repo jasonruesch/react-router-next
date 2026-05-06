@@ -7,7 +7,7 @@ import type { Post } from "../loader";
 import type { RouteProps } from "./route.types";
 
 export default function PostPage({ params }: RouteProps) {
-  const post = useLoaderData() as Post;
+  const post = useLoaderData<Post>();
   const { postId } = params;
   return (
     <Stack as="article" gap="sm">

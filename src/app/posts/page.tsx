@@ -6,7 +6,7 @@ import { Text } from "../../components/ui/text";
 import type { Post } from "./loader";
 
 export default function PostsIndex() {
-  const posts = useLoaderData() as Post[];
+  const posts = useLoaderData<Post[]>();
   return (
     <Stack gap="md">
       <Text>
