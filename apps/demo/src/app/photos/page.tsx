@@ -19,6 +19,7 @@ export default function PhotosPage() {
           <li key={p.id}>
             <NavLink
               to={generatePhoto({ id: p.id })}
+              viewTransition={false}
               className="block overflow-hidden rounded border border-border"
             >
               <div

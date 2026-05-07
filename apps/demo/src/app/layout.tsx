@@ -1,15 +1,17 @@
 import { Outlet } from "react-router";
+import { generate as generateMarketingAbout } from "virtual:react-router-next/(marketing)/about";
+import { generate as generateMarketingPricing } from "virtual:react-router-next/(marketing)/pricing";
+import { generate as generateHome } from "virtual:react-router-next/_root";
+import { generate as generateDashboard } from "virtual:react-router-next/dashboard";
+import { generate as generateDoc } from "virtual:react-router-next/docs/[...slug]";
+import { generate as generateFile } from "virtual:react-router-next/files/[[...slug]]";
+import { generate as generatePhotos } from "virtual:react-router-next/photos";
+import { generate as generatePosts } from "virtual:react-router-next/posts";
+import { generate as generateSearch } from "virtual:react-router-next/search/[[query]]";
 import { ThemeToggle } from "../components/theme-provider";
 import { Container } from "../components/ui/container";
 import { NavLink, TopNav } from "../components/ui/nav";
 import { RouteProgress } from "../components/ui/route-progress";
-import { generate as generateMarketingAbout } from "virtual:react-router-next/(marketing)/about";
-import { generate as generateMarketingPricing } from "virtual:react-router-next/(marketing)/pricing";
-import { generate as generateDoc } from "virtual:react-router-next/docs/[...slug]";
-import { generate as generateFile } from "virtual:react-router-next/files/[[...slug]]";
-import { generate as generatePosts } from "virtual:react-router-next/posts";
-import { generate as generateHome } from "virtual:react-router-next/_root";
-import { generate as generateSearch } from "virtual:react-router-next/search/[[query]]";
 
 const NAV_LINKS: { to: string; label: string }[] = [
   { to: generateMarketingAbout(), label: "About" },
@@ -18,6 +20,8 @@ const NAV_LINKS: { to: string; label: string }[] = [
   { to: generateDoc({ slug: ["intro"] }), label: "Docs" },
   { to: generateSearch({ query: undefined }), label: "Search" },
   { to: generateFile({ slug: undefined }), label: "Files" },
+  { to: generateDashboard(), label: "Dashboard" },
+  { to: generatePhotos(), label: "Photos" },
 ];
 
 export default function RootLayout() {
