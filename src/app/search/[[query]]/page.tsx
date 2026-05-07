@@ -4,6 +4,7 @@ import { PageHeader } from "../../../components/ui/page-header";
 import { Stack } from "../../../components/ui/stack";
 import { Text } from "../../../components/ui/text";
 import type { RouteProps } from "./route.types";
+import { generate as generateSearch } from "./route.types";
 
 const SUGGESTIONS = ["react", "react-router", "vite", "tailwind"];
 
@@ -39,13 +40,13 @@ export default function Search({ params }: RouteProps) {
         <Stack as="ul" gap="xs" className="list-none m-0 p-0">
           {SUGGESTIONS.map((s) => (
             <li key={s}>
-              <NavLink to={`/search/${s}`} size="sm">
+              <NavLink to={generateSearch({ query: s })} size="sm">
                 /search/{s}
               </NavLink>
             </li>
           ))}
           <li>
-            <NavLink to="/search" size="sm">
+            <NavLink to={generateSearch({ query: undefined })} size="sm">
               /search (clear)
             </NavLink>
           </li>

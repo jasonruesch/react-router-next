@@ -4,6 +4,7 @@ import { PageHeader } from "../../../components/ui/page-header";
 import { Stack } from "../../../components/ui/stack";
 import { Text } from "../../../components/ui/text";
 import type { RouteProps } from "./route.types";
+import { generate as generateDoc } from "./route.types";
 
 export default function DocsCatchAll({ params }: RouteProps) {
   const { slug } = params;
@@ -19,7 +20,10 @@ export default function DocsCatchAll({ params }: RouteProps) {
             <Code variant="plain">params["*"]</Code> to the named{" "}
             <Code variant="plain">slug</Code> and splits it into a{" "}
             <Code variant="plain">string[]</Code>, matching Next.js's shape.
-            Required catch-all — the bare <Code variant="plain">/docs</Code>{" "}
+            Required catch-all — the bare{" "}
+            <Code variant="plain">
+              <NavLink to={generateDoc({ slug: [] })}>/docs</NavLink>{" "}
+            </Code>
             404s (try it).
           </>
         }
@@ -33,14 +37,20 @@ export default function DocsCatchAll({ params }: RouteProps) {
         ))}
       </ol>
       <Stack direction="row" gap="md" wrap>
-        <NavLink to="/docs/intro" size="sm">
-          /docs/intro
+        <NavLink to={generateDoc({ slug: ["intro"] })} size="sm">
+          {generateDoc({ slug: ["intro"] })}
         </NavLink>
-        <NavLink to="/docs/api/v2/reference" size="sm">
-          /docs/api/v2/reference
+        <NavLink
+          to={generateDoc({ slug: ["api", "v2", "reference"] })}
+          size="sm"
+        >
+          {generateDoc({ slug: ["api", "v2", "reference"] })}
         </NavLink>
-        <NavLink to="/docs/guides/getting-started/index" size="sm">
-          /docs/guides/getting-started/index
+        <NavLink
+          to={generateDoc({ slug: ["guides", "getting-started", "index"] })}
+          size="sm"
+        >
+          {generateDoc({ slug: ["guides", "getting-started", "index"] })}
         </NavLink>
       </Stack>
     </Stack>

@@ -4,6 +4,7 @@ import { PageHeader } from "../../../components/ui/page-header";
 import { Stack } from "../../../components/ui/stack";
 import { Text } from "../../../components/ui/text";
 import type { RouteProps } from "./route.types";
+import { generate as generateFile } from "./route.types";
 
 export default function FilesOptionalCatchAll({ params }: RouteProps) {
   const { slug } = params;
@@ -36,14 +37,14 @@ export default function FilesOptionalCatchAll({ params }: RouteProps) {
         </ol>
       )}
       <Stack direction="row" gap="md" wrap>
-        <NavLink to="/files" size="sm">
-          /files
+        <NavLink to={generateFile({ slug: undefined })} size="sm">
+          {generateFile({ slug: undefined })}
         </NavLink>
-        <NavLink to="/files/readme" size="sm">
-          /files/readme
+        <NavLink to={generateFile({ slug: ["readme"] })} size="sm">
+          {generateFile({ slug: ["readme"] })}
         </NavLink>
-        <NavLink to="/files/src/app/page.tsx" size="sm">
-          /files/src/app/page.tsx
+        <NavLink to={generateFile({ slug: ["src", "app", "page"] })} size="sm">
+          {generateFile({ slug: ["src", "app", "page"] })}
         </NavLink>
       </Stack>
     </Stack>

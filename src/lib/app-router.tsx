@@ -98,6 +98,21 @@ function ComponentWithParams({
   return <Component params={params} />;
 }
 
+function routeHasParams(route: string): boolean {
+  return route.includes("[");
+}
+
+function renderComponent(
+  Component: ComponentType<{ params?: RouteParamsRecord }>,
+  route: string,
+): ReactElement {
+  return routeHasParams(route) ? (
+    <ComponentWithParams Component={Component} route={route} />
+  ) : (
+    <Component />
+  );
+}
+
 function nodeToRoute(
   node: Node,
   segment: string | null,
@@ -120,9 +135,7 @@ function nodeToRoute(
     );
   }
 
-  const pageEl = Page ? (
-    <ComponentWithParams Component={Page} route={path} />
-  ) : null;
+  const pageEl = Page ? renderComponent(Page, path) : null;
 
   const pageLeaf: RouteObject | null = pageEl
     ? { index: true, element: pageEl, loader }
@@ -147,7 +160,7 @@ function nodeToRoute(
     if (ErrorEl) route.errorElement = <ErrorEl />;
 
     if (Layout) {
-      route.element = <ComponentWithParams Component={Layout} route={path} />;
+      route.element = renderComponent(Layout, path);
       route.children = Loading
         ? [{ element: <LoadingBoundary Loading={Loading} />, children: inner }]
         : inner;

@@ -5,6 +5,13 @@ import { NavLink } from "../components/ui/nav";
 import { PageHeader } from "../components/ui/page-header";
 import { Stack } from "../components/ui/stack";
 import { Text } from "../components/ui/text";
+import { generate as generateMarketingAbout } from "./(marketing)/about/route.types";
+import { generate as generateMarketingPricing } from "./(marketing)/pricing/route.types";
+import { generate as generateDoc } from "./docs/[...slug]/route.types";
+import { generate as generateFile } from "./files/[[...slug]]/route.types";
+import { generate as generatePost } from "./posts/[postId]/route.types";
+import { generate as generatePosts } from "./posts/route.types";
+import { generate as generateSearch } from "./search/[[query]]/route.types";
 
 type Section = {
   title: string;
@@ -19,8 +26,8 @@ const SECTIONS: Section[] = [
     feature: "(group)",
     files: ["(marketing)/about/page.tsx", "(marketing)/pricing/page.tsx"],
     links: [
-      { to: "/about", label: "/about" },
-      { to: "/pricing", label: "/pricing" },
+      { to: generateMarketingAbout(), label: generateMarketingAbout() },
+      { to: generateMarketingPricing(), label: generateMarketingPricing() },
     ],
   },
   {
@@ -32,7 +39,7 @@ const SECTIONS: Section[] = [
       "posts/loading.tsx",
       "posts/page.tsx",
     ],
-    links: [{ to: "/posts", label: "/posts" }],
+    links: [{ to: generatePosts(), label: generatePosts() }],
   },
   {
     title: "Dynamic segment + per-route loader + error boundary",
@@ -43,9 +50,18 @@ const SECTIONS: Section[] = [
       "posts/[postId]/page.tsx",
     ],
     links: [
-      { to: "/posts/1", label: "/posts/1" },
-      { to: "/posts/2", label: "/posts/2" },
-      { to: "/posts/999", label: "/posts/999 (loader throws → error.tsx)" },
+      {
+        to: generatePost({ postId: "1" }),
+        label: generatePost({ postId: "1" }),
+      },
+      {
+        to: generatePost({ postId: "2" }),
+        label: generatePost({ postId: "2" }),
+      },
+      {
+        to: generatePost({ postId: "999" }),
+        label: generatePost({ postId: "999" }),
+      },
     ],
   },
   {
@@ -53,9 +69,15 @@ const SECTIONS: Section[] = [
     feature: "[...slug]",
     files: ["docs/[...slug]/page.tsx"],
     links: [
-      { to: "/docs/intro", label: "/docs/intro" },
-      { to: "/docs/api/v2/reference", label: "/docs/api/v2/reference" },
-      { to: "/docs", label: "/docs (bare — 404, like Next.js)" },
+      {
+        to: generateDoc({ slug: ["intro"] }),
+        label: generateDoc({ slug: ["intro"] }),
+      },
+      {
+        to: generateDoc({ slug: ["api", "v2", "reference"] }),
+        label: generateDoc({ slug: ["api", "v2", "reference"] }),
+      },
+      { to: generateDoc({ slug: [] }), label: generateDoc({ slug: [] }) },
     ],
   },
   {
@@ -63,8 +85,11 @@ const SECTIONS: Section[] = [
     feature: "[[query]]",
     files: ["search/[[query]]/page.tsx"],
     links: [
-      { to: "/search", label: "/search (no param)" },
-      { to: "/search/react-router", label: "/search/react-router" },
+      { to: generateSearch({ query: undefined }), label: "/search (no param)" },
+      {
+        to: generateSearch({ query: "react-router" }),
+        label: "/search/react-router",
+      },
     ],
   },
   {
@@ -72,9 +97,12 @@ const SECTIONS: Section[] = [
     feature: "[[...slug]]",
     files: ["files/[[...slug]]/page.tsx"],
     links: [
-      { to: "/files", label: "/files (no slug)" },
-      { to: "/files/readme", label: "/files/readme" },
-      { to: "/files/src/app/page.tsx", label: "/files/src/app/page.tsx" },
+      { to: generateFile({ slug: undefined }), label: "/files (no slug)" },
+      { to: generateFile({ slug: ["readme"] }), label: "/files/readme" },
+      {
+        to: generateFile({ slug: ["src", "app", "page.tsx"] }),
+        label: "/files/src/app/page.tsx",
+      },
     ],
   },
   {

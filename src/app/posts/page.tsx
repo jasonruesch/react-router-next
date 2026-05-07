@@ -3,6 +3,7 @@ import { FilePath } from "../../components/ui/code";
 import { NavLink } from "../../components/ui/nav";
 import { Stack } from "../../components/ui/stack";
 import { Text } from "../../components/ui/text";
+import { generate as generatePost } from "./[postId]/route.types";
 import type { Post } from "./loader";
 
 export default function PostsIndex() {
@@ -18,7 +19,7 @@ export default function PostsIndex() {
       <ul className="m-0 p-0 list-none divide-y divide-border">
         {posts.map((p) => (
           <li key={p.id} className="py-2">
-            <NavLink to={`/posts/${p.id}`}>
+            <NavLink to={generatePost({ postId: String(p.id) })}>
               {p.id}. {p.title}
             </NavLink>
             <Text size="sm" tone="muted">
@@ -27,7 +28,7 @@ export default function PostsIndex() {
           </li>
         ))}
         <li className="py-2">
-          <NavLink to="/posts/999" tone="destructive">
+          <NavLink to={generatePost({ postId: "999" })} tone="destructive">
             999. (loader throws — exercises error.tsx)
           </NavLink>
         </li>

@@ -5,6 +5,7 @@ import { Heading } from "../components/ui/heading";
 import { NavLink } from "../components/ui/nav";
 import { Stack } from "../components/ui/stack";
 import { Text } from "../components/ui/text";
+import { generate as generateHome } from "./route.types";
 
 export default function NotFound() {
   const location = useLocation();
@@ -16,7 +17,7 @@ export default function NotFound() {
           No route matches <FilePath>{location.pathname}</FilePath>. This page
           comes from <FilePath>src/app/404.tsx</FilePath>.
         </Text>
-        <NavLink to="/">Go home</NavLink>
+        <NavLink to={generateHome()}>Go home</NavLink>
       </Stack>
     </Card>
   );

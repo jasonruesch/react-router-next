@@ -3,6 +3,7 @@ import { FilePath } from "../../../components/ui/code";
 import { ErrorPanel } from "../../../components/ui/error-panel";
 import { BackLink } from "../../../components/ui/nav";
 import { Text } from "../../../components/ui/text";
+import { generate as generatePosts } from "../route.types";
 
 export default function PostError() {
   const error = useRouteError();
@@ -16,7 +17,7 @@ export default function PostError() {
     <ErrorPanel
       title="Couldn't load this post"
       message={message}
-      action={<BackLink to="/posts">back to posts</BackLink>}
+      action={<BackLink to={generatePosts()}>back to posts</BackLink>}
     >
       <Text size="xs" tone="destructive">
         Boundary from <FilePath>src/app/posts/[postId]/error.tsx</FilePath>. The
