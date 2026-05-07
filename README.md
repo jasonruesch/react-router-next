@@ -1,73 +1,52 @@
-# React + TypeScript + Vite
+# react-router-next
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Workspace monorepo containing **`react-router-next`** — a publishable npm package that brings Next.js-style filesystem routing to React Router 7 — and **`demo`**, the example app that exercises every feature of the package.
 
-Currently, two official plugins are available:
+## Layout
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+```
+.
+├── packages/
+│   └── react-router-next/   # published library + Vite plugin + CLI
+└── apps/
+    └── demo/                # example app, depends on react-router-next via workspace
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### `packages/react-router-next/`
 
-```js
-// eslint.config.js
-import reactX from "eslint-plugin-react-x";
-import reactDom from "eslint-plugin-react-dom";
+The library that ships to npm. See [`packages/react-router-next/README.md`](packages/react-router-next/README.md) for installation and usage. Three entry points:
 
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs["recommended-typescript"],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+- **`react-router-next`** — runtime: `AppRouter`, `useRouteParams`, `parseRouteParams`, `generateUrl`, and the `RouteParams` / `RouteProps` types.
+- **`react-router-next/vite`** — the `routeTypegen` Vite plugin and a programmatic `generateRouteTypes` API.
+- **`react-router-next` bin** — `react-router-next typegen` for prebuild and CI use without Vite.
+
+How types reach consumers is hybrid: at runtime, the Vite plugin serves per-route virtual modules (`virtual:react-router-next/<route-key>`); for type-checking, the plugin and CLI emit a single ambient `routes.d.ts` shim into `node_modules/.react-router-next/`, so `tsc` and editors infer per-route param shapes without Vite running.
+
+### `apps/demo/`
+
+A Vite + React 19 app that consumes the workspace package and demonstrates every routing feature: nested layouts, route groups (`(marketing)`), dynamic segments (`[postId]`), catch-all (`[...slug]`), optional and optional catch-all (`[[query]]`, `[[...slug]]`), per-route loaders, loading boundaries, error boundaries, and a 404. Long-form documentation of the conventions lives in [`apps/demo/docs/app-router.md`](apps/demo/docs/app-router.md).
+
+## Working in the repo
+
+From the repo root:
+
+```sh
+npm install                       # install all workspaces
+npm run build                     # build the package, then build the demo
+npm run dev                       # start the demo's Vite dev server
 ```
+
+Per-workspace commands use npm workspaces:
+
+```sh
+npm run build -w react-router-next   # build the library (tsup → dist/)
+npm run dev   -w react-router-next   # tsup --watch
+npm run build -w demo                # tsc -b && vite build
+npm run dev   -w demo                # vite dev server
+npm run typegen -w demo              # regenerate the routes.d.ts shim
+```
+
+## Requirements
+
+- Node ≥ 20
+- npm ≥ 9 (uses npm workspaces)
