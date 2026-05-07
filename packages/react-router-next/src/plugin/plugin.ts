@@ -89,7 +89,7 @@ export function routeTypegen(options: RouteTypegenOptions = {}): Plugin {
         // export a matching `appDir` for the tree builder to strip.
         const rootRelative =
           "/" + toPosix(relative(root, appDir)).replace(/^\/+/, "");
-        const pattern = `${rootRelative}/**/{page,layout,loader,loading,error,404}.{tsx,jsx,ts,js}`;
+        const pattern = `${rootRelative}/**/{page,layout,loader,loading,error,default,template,not-found}.{tsx,jsx,ts,js}`;
         return `\
 const modules = import.meta.glob(${JSON.stringify(pattern)}, { eager: true });
 const appDir = ${JSON.stringify(rootRelative)};

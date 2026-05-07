@@ -1,0 +1,89 @@
+import type { ComponentType, ReactElement, ReactNode } from "react";
+import {
+  Outlet,
+  useLocation,
+  useNavigationType,
+  useParams,
+  useRoutes,
+  type RouteObject,
+} from "react-router";
+
+import { parseRouteParams } from "./use-route-params";
+
+export type SlotConfig = {
+  routes: RouteObject[];
+  defaultElement: ReactNode | null;
+};
+
+type LayoutWithSlots = ComponentType<{
+  params?: Record<string, string | string[] | undefined>;
+  children?: ReactNode;
+  [slot: string]: unknown;
+}>;
+
+function SlotElement({ slot }: { slot: SlotConfig }): ReactNode {
+  const matched = useRoutes(slot.routes);
+  return matched ?? slot.defaultElement;
+}
+
+/**
+ * Wraps a layout that owns one or more `@slot` parallel routes. Each slot is
+ * rendered into a `SlotElement` whose content is driven by `useRoutes(slot.routes)`
+ * — i.e. the slot's own subtree is matched against the current URL independently
+ * of the main outlet. The matched element (or the slot's `default.tsx`) is
+ * passed to the user's layout as a named prop.
+ */
+export function ParallelLayout({
+  Component,
+  slots,
+  route,
+}: {
+  Component: LayoutWithSlots;
+  slots: Record<string, SlotConfig>;
+  route: string;
+}): ReactElement {
+  const rrParams = useParams();
+  const slotProps: Record<string, ReactNode> = { children: <Outlet /> };
+  for (const [name, slot] of Object.entries(slots)) {
+    slotProps[name] = <SlotElement key={name} slot={slot} />;
+  }
+  const params = route.includes("[")
+    ? parseRouteParams(route, rrParams)
+    : undefined;
+  return <Component {...slotProps} params={params} />;
+}
+
+/**
+ * Re-mounts its template on every URL change by keying it on `location.pathname`.
+ * Mirrors Next.js `template.tsx` semantics: like a layout, but state is not
+ * preserved across navigations.
+ */
+export function TemplateRemount({
+  Template,
+}: {
+  Template: ComponentType<{ children?: ReactNode }>;
+}): ReactElement {
+  const { pathname } = useLocation();
+  return (
+    <Template key={pathname}>
+      <Outlet />
+    </Template>
+  );
+}
+
+/**
+ * Renders the interceptor element on PUSH/REPLACE (soft) navigation, and the
+ * original target element on POP (back/forward) and initial loads. Mirrors
+ * Next.js intercepting-route semantics: a deep link or refresh shows the full
+ * page; an in-app click shows the interceptor (e.g. modal).
+ */
+export function InterceptedRoute({
+  Interceptor,
+  Target,
+}: {
+  Interceptor: ReactNode;
+  Target: ReactNode;
+}): ReactElement {
+  const navType = useNavigationType();
+  return <>{navType === "POP" ? Target : Interceptor}</>;
+}

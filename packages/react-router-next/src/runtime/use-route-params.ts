@@ -10,7 +10,9 @@ type ParseSegment<S extends string> = S extends `[[...${infer Name}]]`
         ? { [K in Name]: string }
         : S extends `(${string})`
           ? Record<never, never>
-          : Record<never, never>;
+          : S extends `@${string}`
+            ? Record<never, never>
+            : Record<never, never>;
 
 type ParseRoute<S extends string> = S extends `${infer Head}/${infer Tail}`
   ? ParseSegment<Head> & ParseRoute<Tail>
@@ -30,6 +32,7 @@ export function parseRouteParams<S extends string>(
 ): RouteParams<S> {
   const out: Record<string, string | string[] | undefined> = {};
   for (const seg of route.split("/")) {
+    if (seg.startsWith("@") || seg.startsWith("(")) continue;
     if (seg.startsWith("[[...") && seg.endsWith("]]")) {
       const splat = rrParams["*"];
       out[seg.slice(5, -2)] =

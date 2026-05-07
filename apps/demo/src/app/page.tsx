@@ -1,3 +1,15 @@
+import { generate as generateMarketingAbout } from "virtual:react-router-next/(marketing)/about";
+import { generate as generateMarketingPricing } from "virtual:react-router-next/(marketing)/pricing";
+import { generate as generateDashboard } from "virtual:react-router-next/dashboard";
+import { generate as generateDashboardOther } from "virtual:react-router-next/dashboard/other";
+import { generate as generateDashboardSettings } from "virtual:react-router-next/dashboard/settings";
+import { generate as generateDoc } from "virtual:react-router-next/docs/[...slug]";
+import { generate as generateFile } from "virtual:react-router-next/files/[[...slug]]";
+import { generate as generatePhotos } from "virtual:react-router-next/photos";
+import { generate as generatePhoto } from "virtual:react-router-next/photos/[id]";
+import { generate as generatePosts } from "virtual:react-router-next/posts";
+import { generate as generatePost } from "virtual:react-router-next/posts/[postId]";
+import { generate as generateSearch } from "virtual:react-router-next/search/[[query]]";
 import { Card } from "../components/ui/card";
 import { Code, FilePath } from "../components/ui/code";
 import { Heading } from "../components/ui/heading";
@@ -5,13 +17,6 @@ import { NavLink } from "../components/ui/nav";
 import { PageHeader } from "../components/ui/page-header";
 import { Stack } from "../components/ui/stack";
 import { Text } from "../components/ui/text";
-import { generate as generateMarketingAbout } from "virtual:react-router-next/(marketing)/about";
-import { generate as generateMarketingPricing } from "virtual:react-router-next/(marketing)/pricing";
-import { generate as generateDoc } from "virtual:react-router-next/docs/[...slug]";
-import { generate as generateFile } from "virtual:react-router-next/files/[[...slug]]";
-import { generate as generatePost } from "virtual:react-router-next/posts/[postId]";
-import { generate as generatePosts } from "virtual:react-router-next/posts";
-import { generate as generateSearch } from "virtual:react-router-next/search/[[query]]";
 
 type Section = {
   title: string;
@@ -106,9 +111,44 @@ const SECTIONS: Section[] = [
     ],
   },
   {
+    title: "Parallel routes (named slot props)",
+    feature: "@slot/, default.tsx",
+    files: [
+      "dashboard/layout.tsx",
+      "dashboard/page.tsx",
+      "dashboard/settings/page.tsx",
+      "dashboard/@analytics/page.tsx",
+      "dashboard/@analytics/settings/page.tsx",
+      "dashboard/@analytics/default.tsx",
+    ],
+    links: [
+      { to: generateDashboard(), label: generateDashboard() },
+      { to: generateDashboardSettings(), label: generateDashboardSettings() },
+      { to: generateDashboardOther(), label: generateDashboardOther() },
+    ],
+  },
+  {
+    title: "Intercepting routes + template + _private folder",
+    feature: "(.)x, template.tsx, _components/",
+    files: [
+      "photos/page.tsx",
+      "photos/[id]/page.tsx",
+      "photos/[id]/template.tsx",
+      "photos/(.)[id]/page.tsx",
+      "photos/_components/dialog.tsx",
+    ],
+    links: [
+      { to: generatePhotos(), label: generatePhotos() },
+      {
+        to: generatePhoto({ id: "1" }),
+        label: `${generatePhoto({ id: "1" })} (refresh = full page)`,
+      },
+    ],
+  },
+  {
     title: "Not-found",
-    feature: "404.tsx",
-    files: ["404.tsx"],
+    feature: "not-found.tsx",
+    files: ["not-found.tsx"],
     links: [{ to: "/no-such-route", label: "/no-such-route" }],
   },
 ];

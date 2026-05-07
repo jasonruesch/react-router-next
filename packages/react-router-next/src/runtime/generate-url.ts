@@ -8,6 +8,7 @@ export function generateUrl<S extends string>(
   const out: string[] = [];
   for (const seg of route.split("/")) {
     if (seg === "") continue;
+    if (seg.startsWith("@")) continue;
     if (seg.startsWith("(") && seg.endsWith(")")) continue;
     if (seg.startsWith("[[...") && seg.endsWith("]]")) {
       const v = p[seg.slice(5, -2)];

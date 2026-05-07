@@ -45,9 +45,9 @@ export function generateRouteTypes(opts: GenerateOptions = {}): GenerateResult {
   );
 
   const { routeDirs } = scanAppDir(appDir);
-  const routeKeys = routeDirs
-    .map((dir) => routeKeyFor(appDir, dir))
-    .sort((a, b) => a.localeCompare(b));
+  const routeKeys = [
+    ...new Set(routeDirs.map((dir) => routeKeyFor(appDir, dir))),
+  ].sort((a, b) => a.localeCompare(b));
 
   const shimPath = join(outDir, "routes.d.ts");
   const written = writeIfChanged(shimPath, renderDtsShim(routeKeys));

@@ -15,7 +15,7 @@ export default function NotFound() {
         <Heading level={1}>404</Heading>
         <Text tone="muted">
           No route matches <FilePath>{location.pathname}</FilePath>. This page
-          comes from <FilePath>src/app/404.tsx</FilePath>.
+          comes from <FilePath>src/app/not-found.tsx</FilePath>.
         </Text>
         <NavLink to={generateHome()}>Go home</NavLink>
       </Stack>

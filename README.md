@@ -16,7 +16,7 @@ Workspace monorepo containing **`react-router-next`** — a publishable npm pack
 
 The library that ships to npm. See [`packages/react-router-next/README.md`](packages/react-router-next/README.md) for installation and usage. Three entry points:
 
-- **`react-router-next`** — runtime: `AppRouter`, `useRouteParams`, `parseRouteParams`, `generateUrl`, and the `RouteParams` / `RouteProps` types.
+- **`react-router-next`** — runtime: `AppRouter`, `buildRoutesFromModules`, `useRouteParams`, `parseRouteParams`, `generateUrl`, and the `RouteParams` / `RouteProps` / `RouteModule` / `RouteModuleMap` types.
 - **`react-router-next/vite`** — the `routeTypegen` Vite plugin and a programmatic `generateRouteTypes` API.
 - **`react-router-next` bin** — `react-router-next typegen` for prebuild and CI use without Vite.
 
@@ -24,7 +24,7 @@ How types reach consumers is hybrid: at runtime, the Vite plugin serves per-rout
 
 ### `apps/demo/`
 
-A Vite + React 19 app that consumes the workspace package and demonstrates every routing feature: nested layouts, route groups (`(marketing)`), dynamic segments (`[postId]`), catch-all (`[...slug]`), optional and optional catch-all (`[[query]]`, `[[...slug]]`), per-route loaders, loading boundaries, error boundaries, and a 404. Long-form documentation of the conventions lives in [`apps/demo/docs/app-router.md`](apps/demo/docs/app-router.md).
+A Vite + React 19 app that consumes the workspace package and demonstrates every routing feature: nested layouts, route groups (`(marketing)`), dynamic segments (`[postId]`), catch-all (`[...slug]`), optional and optional catch-all (`[[query]]`, `[[...slug]]`), per-route loaders, loading boundaries, error boundaries, parallel-route slots (`dashboard/@analytics`), intercepting routes (`photos/(.)[id]` modal vs. `photos/[id]` full page), `template.tsx` remount-on-navigation, `_private` colocation folders, and `not-found.tsx`. Long-form documentation of the conventions lives in [`apps/demo/README.md`](apps/demo/README.md).
 
 ## Working in the repo
 
