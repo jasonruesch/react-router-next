@@ -111,6 +111,8 @@ File-name conventions inside a route folder:
 
 For each route folder the plugin exposes a virtual module — `virtual:react-router-next/<route-key>` — that mirrors the folder layout, with the root represented as `_root`:
 
+The runtime renders each `page.tsx` with its `RouteProps` already wired up — `params` is parsed from the URL (typed from the folder name) and passed in as a prop, so the component can destructure it directly without calling `useParams`/`useRouteParams`. The virtual module only exports `RouteProps` (and `useRouteParams`) for routes that actually have params; paramless routes can omit the prop entirely.
+
 ```tsx
 // src/app/posts/[postId]/page.tsx
 import type { RouteProps } from "virtual:react-router-next/posts/[postId]";
@@ -132,6 +134,16 @@ export default function PostPage({ params }: RouteProps) {
 import { generate as generatePost } from "virtual:react-router-next/posts/[postId]";
 
 <NavLink to={generatePost({ postId: "1" })}>First post</NavLink>;
+```
+
+```tsx
+// src/app/posts/[postId]/page.tsx
+import { useRouteParams } from "virtual:react-router-next/posts/[postId]";
+
+export default function PostPage() {
+  const { postId } = useRouteParams();
+  return <article>Post id: {postId}</article>;
+}
 ```
 
 The runtime hook `useRouteParams` is also re-exported from the package itself if you'd rather not pin the route literal:
