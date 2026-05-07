@@ -1,6 +1,6 @@
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
-import { routeTypegen } from "react-router-next/vite";
+import { routeTypegen } from "@evolonix/react-router-next/vite";
 import { defineConfig } from "vite";
 
 // https://vite.dev/config/

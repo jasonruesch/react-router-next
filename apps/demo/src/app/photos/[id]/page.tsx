@@ -6,7 +6,7 @@ import { Stack } from "../../../components/ui/stack";
 import { Text } from "../../../components/ui/text";
 import { generate as generatePhotos } from "virtual:react-router-next/photos";
 import type { RouteProps } from "virtual:react-router-next/photos/[id]";
-import { PHOTOS } from "../page";
+import { PHOTOS } from "../data";
 
 export default function PhotoPage({ params }: RouteProps) {
   const photo = PHOTOS.find((p) => p.id === params.id);

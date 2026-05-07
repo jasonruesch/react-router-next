@@ -1,6 +1,6 @@
 # react-router-next
 
-Workspace monorepo containing **`react-router-next`** — a publishable npm package that brings Next.js-style filesystem routing to React Router 7 — and **`demo`**, the example app that exercises every feature of the package.
+Workspace monorepo containing **`@evolonix/react-router-next`** — a publishable npm package that brings Next.js-style filesystem routing to React Router 7 — and **`demo`**, the example app that exercises every feature of the package.
 
 ## Layout
 
@@ -16,9 +16,9 @@ Workspace monorepo containing **`react-router-next`** — a publishable npm pack
 
 The library that ships to npm. See [`packages/react-router-next/README.md`](packages/react-router-next/README.md) for installation and usage. Three entry points:
 
-- **`react-router-next`** — runtime: `AppRouter`, `buildRoutesFromModules`, `useRouteParams`, `parseRouteParams`, `generateUrl`, and the `RouteParams` / `RouteProps` / `RouteModule` / `RouteModuleMap` types.
-- **`react-router-next/vite`** — the `routeTypegen` Vite plugin and a programmatic `generateRouteTypes` API.
-- **`react-router-next` bin** — `react-router-next typegen` for prebuild and CI use without Vite.
+- **`@evolonix/react-router-next`** — runtime: `AppRouter`, `buildRoutesFromModules`, `useRouteParams`, `parseRouteParams`, `generateUrl`, and the `RouteParams` / `RouteProps` / `RouteModule` / `RouteModuleMap` types.
+- **`@evolonix/react-router-next/vite`** — the `routeTypegen` Vite plugin and a programmatic `generateRouteTypes` API.
+- **`@evolonix/react-router-next` bin** — `react-router-next typegen` for prebuild and CI use without Vite.
 
 How types reach consumers is hybrid: at runtime, the Vite plugin serves per-route virtual modules (`virtual:react-router-next/<route-key>`); for type-checking, the plugin and CLI emit a single ambient `routes.d.ts` shim into `node_modules/.react-router-next/`, so `tsc` and editors infer per-route param shapes without Vite running.
 
@@ -39,8 +39,8 @@ npm run dev                       # start the demo's Vite dev server
 Per-workspace commands use npm workspaces:
 
 ```sh
-npm run build -w react-router-next   # build the library (tsup → dist/)
-npm run dev   -w react-router-next   # tsup --watch
+npm run build -w @evolonix/react-router-next   # build the library (tsup → dist/)
+npm run dev   -w @evolonix/react-router-next   # tsup --watch
 npm run build -w demo                # tsc -b && vite build
 npm run dev   -w demo                # vite dev server
 npm run typegen -w demo              # regenerate the routes.d.ts shim

@@ -4,7 +4,7 @@ import { Stack } from "../../../components/ui/stack";
 import { Text } from "../../../components/ui/text";
 import { generate as generatePhotos } from "virtual:react-router-next/photos";
 import type { RouteProps } from "virtual:react-router-next/photos/[id]";
-import { PHOTOS } from "../page";
+import { PHOTOS } from "../data";
 import { Dialog } from "../_components/dialog";
 
 export default function PhotoModal({ params }: RouteProps) {

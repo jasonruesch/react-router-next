@@ -2,19 +2,30 @@
   "name": "react-router-next-monorepo",
   "private": true,
   "version": "0.0.0",
+  "license": "MIT",
   "type": "module",
+  "packageManager": "npm@11.5.1",
+  "engines": {
+    "node": ">=20"
+  },
   "workspaces": [
     "packages/*",
     "apps/*"
   ],
   "scripts": {
-    "build": "npm run build -w react-router-next && npm run build -w demo",
+    "build": "npm run build -w @evolonix/react-router-next && npm run build -w demo",
     "dev": "npm run dev -w demo",
     "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck -w @evolonix/react-router-next",
     "format:check": "prettier --check .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "changeset": "changeset",
+    "version": "changeset version && npm install --package-lock-only",
+    "release": "npm run build -w @evolonix/react-router-next && changeset publish"
   },
   "devDependencies": {
+    "@changesets/changelog-github": "^0.5.0",
+    "@changesets/cli": "^2.27.10",
     "prettier": "^3.8.3"
   }
 }

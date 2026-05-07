@@ -1,5 +1,5 @@
 {
-  "name": "react-router-next",
+  "name": "@evolonix/react-router-next",
   "version": "0.1.0",
   "description": "Next.js-style filesystem routing for React Router 7, with a Vite plugin that generates per-route typed params.",
   "license": "MIT",
@@ -20,13 +20,29 @@
   },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm run build"
   },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jasonruesch/react-router-next.git",
+    "directory": "packages/react-router-next"
+  },
+  "bugs": {
+    "url": "https://github.com/jasonruesch/react-router-next/issues"
+  },
+  "homepage": "https://github.com/jasonruesch/react-router-next#readme",
   "peerDependencies": {
     "react": ">=19",
     "react-dom": ">=19",

@@ -7,7 +7,7 @@ Next.js-style filesystem routing for React Router 7, delivered as a Vite plugin 
 ## Install
 
 ```sh
-npm i react-router-next react-router
+npm i @evolonix/react-router-next react-router
 ```
 
 ## Quick start
@@ -17,7 +17,7 @@ npm i react-router-next react-router
 ```ts
 // vite.config.ts
 import react from "@vitejs/plugin-react";
-import { routeTypegen } from "react-router-next/vite";
+import { routeTypegen } from "@evolonix/react-router-next/vite";
 import { defineConfig } from "vite";
 
 export default defineConfig({
@@ -31,7 +31,7 @@ export default defineConfig({
 // src/main.tsx
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { AppRouter } from "react-router-next";
+import { AppRouter } from "@evolonix/react-router-next";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -137,7 +137,7 @@ import { generate as generatePost } from "virtual:react-router-next/posts/[postI
 The runtime hook `useRouteParams` is also re-exported from the package itself if you'd rather not pin the route literal:
 
 ```tsx
-import { useRouteParams } from "react-router-next";
+import { useRouteParams } from "@evolonix/react-router-next";
 const { postId } = useRouteParams("posts/[postId]");
 ```
 
@@ -153,7 +153,7 @@ import { createBrowserRouter, RouterProvider } from "react-router";
 import {
   buildRoutesFromModules,
   type RouteModuleMap,
-} from "react-router-next";
+} from "@evolonix/react-router-next";
 // @ts-expect-error virtual module is provided by the routeTypegen Vite plugin
 import { modules, appDir } from "virtual:react-router-next/app-tree";
 
