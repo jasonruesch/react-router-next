@@ -36,13 +36,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jasonruesch/react-router-next.git",
+    "url": "git+https://github.com/evolonix/react-router-next.git",
     "directory": "packages/react-router-next"
   },
   "bugs": {
-    "url": "https://github.com/jasonruesch/react-router-next/issues"
+    "url": "https://github.com/evolonix/react-router-next/issues"
   },
-  "homepage": "https://github.com/jasonruesch/react-router-next#readme",
+  "homepage": "https://github.com/evolonix/react-router-next#readme",
   "peerDependencies": {
     "react": ">=19",
     "react-dom": ">=19",
