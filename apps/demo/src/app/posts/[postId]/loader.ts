@@ -1,5 +1,5 @@
 import type { LoaderFunction } from "react-router";
-import { parseRouteParams } from "react-router-next";
+import { parseRouteParams } from "@evolonix/react-router-next";
 import type { Post } from "../loader";
 import { POSTS } from "../loader";
 
