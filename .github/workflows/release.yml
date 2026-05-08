@@ -25,12 +25,19 @@ jobs:
           registry-url: https://registry.npmjs.org
       - run: npm ci
       - run: npm run build -w @evolonix/react-router-next
+      - name: Get next version
+        id: next_version
+        run: |
+          npx changeset status --output=release.json
+          VERSION=$(node -p "const r = require('./release.json').releases.find(r => r.name === '@evolonix/react-router-next' && r.type !== 'none'); r?.newVersion ?? ''")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          rm -f release.json
       - uses: changesets/action@v1
         with:
           version: npm run version
           publish: npm run release
-          commit: "chore(release): version packages"
-          title: "chore(release): version packages"
+          commit: "chore(release): version packages${{ steps.next_version.outputs.version && format(' {0}', steps.next_version.outputs.version) || '' }}"
+          title: "chore(release): version packages${{ steps.next_version.outputs.version && format(' {0}', steps.next_version.outputs.version) || '' }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
