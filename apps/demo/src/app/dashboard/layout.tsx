@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Outlet } from "react-router";
 import { generate as generateDashboard } from "virtual:react-router-next/dashboard";
 import { generate as generateDashboardOther } from "virtual:react-router-next/dashboard/other";
 import { generate as generateDashboardSettings } from "virtual:react-router-next/dashboard/settings";
@@ -10,10 +11,8 @@ import { Stack } from "../../components/ui/stack";
 import { Text } from "../../components/ui/text";
 
 export default function DashboardLayout({
-  children,
   analytics,
 }: {
-  children: ReactNode;
   analytics: ReactNode;
 }) {
   return (
@@ -31,7 +30,9 @@ export default function DashboardLayout({
         the <Code variant="plain">analytics</Code> slot as a named prop.
       </Text>
       <div className="grid gap-4 md:grid-cols-[2fr_1fr]">
-        <Card as="section">{children}</Card>
+        <Card as="section">
+          <Outlet />
+        </Card>
         <Card as="aside" tone="default">
           <Stack gap="sm">
             <Text size="xs" tone="muted" transform="uppercase">

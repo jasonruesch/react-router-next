@@ -1,7 +1,8 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState } from "react";
+import { Outlet } from "react-router";
 import { Stack } from "../../../components/ui/stack";
 
-export default function PhotoTemplate({ children }: { children: ReactNode }) {
+export default function PhotoTemplate() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
     const id = requestAnimationFrame(() => setMounted(true));
@@ -12,7 +13,9 @@ export default function PhotoTemplate({ children }: { children: ReactNode }) {
       className="transition-opacity duration-300"
       style={{ opacity: mounted ? 1 : 0 }}
     >
-      <Stack gap="md">{children}</Stack>
+      <Stack gap="md">
+        <Outlet />
+      </Stack>
     </div>
   );
 }
