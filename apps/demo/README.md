@@ -45,7 +45,7 @@ src/app/
 ├── search/[[query]]/page.tsx             # OPTIONAL — :query?
 ├── files/[[...slug]]/page.tsx            # OPTIONAL CATCH-ALL — index + "*" siblings
 ├── dashboard/                            # PARALLEL ROUTES — @slot named props
-│   ├── layout.tsx                        # Receives { children, analytics } as props
+│   ├── layout.tsx                        # Receives { analytics } as a slot prop; main flow via <Outlet />
 │   ├── page.tsx                          # /dashboard main panel
 │   ├── settings/page.tsx                 # /dashboard/settings main panel
 │   └── @analytics/                       # parallel slot — invisible to URL
@@ -64,16 +64,16 @@ src/app/
 
 ## File conventions
 
-| File                       | Purpose                                                 | Maps to                                                                                                                      |
-| -------------------------- | ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| `page.tsx`                 | Leaf route element                                      | route's `element` (or `index: true` child if siblings/layout exist)                                                          |
-| `layout.tsx`               | Wraps children via `<Outlet />`                         | parent route's `element`. With sibling `@slot/` folders, the layout receives each slot as a named prop alongside `children`. |
-| `template.tsx`             | Like `layout.tsx` but remounts on every navigation      | wrapper inside the layout (or as the route element if no layout) keyed on `useLocation().pathname`                           |
-| `default.tsx`              | Slot fallback (only inside a `@slot/` directory)        | rendered in that slot when the URL doesn't match any of the slot's explicit pages                                            |
-| `loader.ts` / `loader.tsx` | React Router loader (named export `loader`, or default) | route's `loader`                                                                                                             |
-| `loading.tsx`              | Skeleton/fallback during navigation                     | injected boundary that swaps `<Outlet />` for the loader UI when `useNavigation().state === "loading"`                       |
-| `error.tsx`                | Error boundary                                          | route's `errorElement` (read with `useRouteError()`)                                                                         |
-| `not-found.tsx`            | Not-found page                                          | top-level `{ path: "*" }` route                                                                                              |
+| File                       | Purpose                                                 | Maps to                                                                                                                           |
+| -------------------------- | ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `page.tsx`                 | Leaf route element                                      | route's `element` (or `index: true` child if siblings/layout exist)                                                               |
+| `layout.tsx`               | Wraps children via `<Outlet />`                         | parent route's `element`. With sibling `@slot/` folders, the layout also receives each slot as a named prop alongside the outlet. |
+| `template.tsx`             | Like `layout.tsx` but remounts on every navigation      | wrapper inside the layout (or as the route element if no layout) keyed on `useLocation().pathname`                                |
+| `default.tsx`              | Slot fallback (only inside a `@slot/` directory)        | rendered in that slot when the URL doesn't match any of the slot's explicit pages                                                 |
+| `loader.ts` / `loader.tsx` | React Router loader (named export `loader`, or default) | route's `loader`                                                                                                                  |
+| `loading.tsx`              | Skeleton/fallback during navigation                     | injected boundary that swaps `<Outlet />` for the loader UI when `useNavigation().state === "loading"`                            |
+| `error.tsx`                | Error boundary                                          | route's `errorElement` (read with `useRouteError()`)                                                                              |
+| `not-found.tsx`            | Not-found page                                          | top-level `{ path: "*" }` route                                                                                                   |
 
 ## Segment conventions
 
@@ -160,6 +160,6 @@ The route literal isn't validated against the actual mounted route — passing `
 - `/docs/intro`, `/docs/api/v2/reference` — catch-all
 - `/search`, `/search/react-router` — optional segment
 - `/files`, `/files/readme`, `/files/src/app/page.tsx` — optional catch-all
-- `/dashboard`, `/dashboard/settings` — parallel routes (children + analytics slot, both swap independently)
+- `/dashboard`, `/dashboard/settings` — parallel routes (main outlet + analytics slot, both swap independently)
 - `/photos` then click a thumbnail — modal interceptor; refresh on a photo URL shows the full page instead
 - `/no-such-route` — `not-found.tsx`

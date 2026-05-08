@@ -10,7 +10,6 @@ import {
 
 type LayoutWithSlots = ComponentType<{
   params?: RouteParamsRecord;
-  children?: ReactNode;
   [slot: string]: unknown;
 }>;
 
@@ -19,7 +18,6 @@ type RouteParamsRecord = Record<string, string | string[] | undefined>;
 export type RouteModule = {
   default?: ComponentType<{
     params?: RouteParamsRecord;
-    children?: ReactNode;
     [slot: string]: unknown;
   }>;
   loader?: LoaderFunction;

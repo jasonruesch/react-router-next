@@ -60,7 +60,7 @@ src/app/
 │       ├── error.tsx          # error boundary
 │       └── page.tsx           # /posts/:postId
 ├── dashboard/                 # parallel-route slots
-│   ├── layout.tsx             # function ({ children, analytics })
+│   ├── layout.tsx             # function ({ analytics }) — main flow via <Outlet/>
 │   ├── page.tsx               # /dashboard main panel
 │   ├── settings/page.tsx      # /dashboard/settings main panel
 │   └── @analytics/            # parallel slot — invisible in URL
@@ -96,16 +96,16 @@ Folder-name conventions:
 
 File-name conventions inside a route folder:
 
-| File            | Role                                                                                                    |
-| --------------- | ------------------------------------------------------------------------------------------------------- |
-| `page.tsx`      | Leaf component for the route                                                                            |
-| `layout.tsx`    | Wraps children via `<Outlet/>`. With sibling `@slot/` folders, also receives each slot as a named prop. |
-| `template.tsx`  | Like `layout.tsx` but remounts on every navigation (keyed on `pathname`).                               |
-| `default.tsx`   | Fallback inside a `@slot/` directory when the URL doesn't match any of the slot's pages.                |
-| `loader.ts`     | React Router data loader                                                                                |
-| `loading.tsx`   | Rendered while a parent loader is pending                                                               |
-| `error.tsx`     | `errorElement` for the route                                                                            |
-| `not-found.tsx` | App-wide not-found boundary (root only)                                                                 |
+| File            | Role                                                                                                                                    |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `page.tsx`      | Leaf component for the route                                                                                                            |
+| `layout.tsx`    | Wraps children via `<Outlet/>`. With sibling `@slot/` folders, the layout also receives each slot as a named prop alongside the outlet. |
+| `template.tsx`  | Like `layout.tsx` but remounts on every navigation (keyed on `pathname`).                                                               |
+| `default.tsx`   | Fallback inside a `@slot/` directory when the URL doesn't match any of the slot's pages.                                                |
+| `loader.ts`     | React Router data loader                                                                                                                |
+| `loading.tsx`   | Rendered while a parent loader is pending                                                                                               |
+| `error.tsx`     | `errorElement` for the route                                                                                                            |
+| `not-found.tsx` | App-wide not-found boundary (root only)                                                                                                 |
 
 ### 4. Use the typed helpers
 
@@ -183,20 +183,22 @@ The returned `RouteObject[]` is plain React Router 7 — pass it to any router f
 
 ## Parallel routes (`@slot`)
 
-A folder prefixed with `@` doesn't contribute a URL segment — instead, its contents are matched independently against the current URL and rendered in the parent layout as a named prop. The parent layout's signature gains one prop per slot:
+A folder prefixed with `@` doesn't contribute a URL segment — instead, its contents are matched independently against the current URL and rendered in the parent layout as a named prop. The main flow still comes through `<Outlet />`; the layout's signature gains one extra prop per slot:
 
 ```tsx
 // src/app/dashboard/layout.tsx
+import { Outlet } from "react-router";
+
 export default function DashboardLayout({
-  children,
   analytics,
 }: {
-  children: ReactNode;
   analytics: ReactNode;
 }) {
   return (
     <div className="grid grid-cols-[2fr_1fr]">
-      <main>{children}</main>
+      <main>
+        <Outlet />
+      </main>
       <aside>{analytics}</aside>
     </div>
   );

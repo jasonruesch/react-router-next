@@ -1,6 +1,5 @@
 import type { ComponentType, ReactElement, ReactNode } from "react";
 import {
-  Outlet,
   useLocation,
   useNavigationType,
   useParams,
@@ -17,7 +16,6 @@ export type SlotConfig = {
 
 type LayoutWithSlots = ComponentType<{
   params?: Record<string, string | string[] | undefined>;
-  children?: ReactNode;
   [slot: string]: unknown;
 }>;
 
@@ -31,7 +29,9 @@ function SlotElement({ slot }: { slot: SlotConfig }): ReactNode {
  * rendered into a `SlotElement` whose content is driven by `useRoutes(slot.routes)`
  * — i.e. the slot's own subtree is matched against the current URL independently
  * of the main outlet. The matched element (or the slot's `default.tsx`) is
- * passed to the user's layout as a named prop.
+ * passed to the user's layout as a named prop. The main flow is reached via
+ * `<Outlet />` inside the layout, matching the convention for non-parallel
+ * layouts in this package.
  */
 export function ParallelLayout({
   Component,
@@ -43,7 +43,7 @@ export function ParallelLayout({
   route: string;
 }): ReactElement {
   const rrParams = useParams();
-  const slotProps: Record<string, ReactNode> = { children: <Outlet /> };
+  const slotProps: Record<string, ReactNode> = {};
   for (const [name, slot] of Object.entries(slots)) {
     slotProps[name] = <SlotElement key={name} slot={slot} />;
   }
@@ -56,19 +56,16 @@ export function ParallelLayout({
 /**
  * Re-mounts its template on every URL change by keying it on `location.pathname`.
  * Mirrors Next.js `template.tsx` semantics: like a layout, but state is not
- * preserved across navigations.
+ * preserved across navigations. The template itself renders `<Outlet />` for
+ * the matched child, matching the convention for layouts in this package.
  */
 export function TemplateRemount({
   Template,
 }: {
-  Template: ComponentType<{ children?: ReactNode }>;
+  Template: ComponentType;
 }): ReactElement {
   const { pathname } = useLocation();
-  return (
-    <Template key={pathname}>
-      <Outlet />
-    </Template>
-  );
+  return <Template key={pathname} />;
 }
 
 /**
