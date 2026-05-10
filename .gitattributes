@@ -1,0 +1,14 @@
+# Normalize line endings on checkin; check out with native line endings on Windows
+* text=auto eol=lf
+
+# Explicitly mark common binaries
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+
+# Hide generated/lock files from GitHub language stats
+package-lock.json linguist-generated=true

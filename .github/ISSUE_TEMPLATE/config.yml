@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Usage question / general help
+    url: https://github.com/evolonix/react-router-next/discussions
+    about: For "how do I…?" questions, please start a discussion instead of opening an issue.
+  - name: Report a security vulnerability
+    url: https://github.com/evolonix/react-router-next/security/advisories/new
+    about: Report security issues privately via GitHub Security Advisories. Please do not open a public issue for security problems.

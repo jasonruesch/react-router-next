@@ -1,0 +1,37 @@
+name: Feature request
+description: Suggest a new feature or enhancement
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting an improvement! Please describe the use case before the implementation — it's much easier to evaluate trade-offs that way.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you trying to solve?
+      description: What's the user-facing pain point? What are you currently doing instead, and why is it not enough?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What would you like to see? An API sketch, syntax example, or behavior description is great.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: What other approaches did you think about? Why are they less suitable?
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Links to related issues, prior art in other libraries (e.g. how Next.js handles it), or other context.

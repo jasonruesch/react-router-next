@@ -1,0 +1,108 @@
+name: Bug report
+description: Report a reproducible problem with @evolonix/react-router-next
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug report. A minimal reproduction is the single biggest factor in how fast a fix lands — please include one if you can.
+
+        **Security vulnerabilities should not be filed here.** See [SECURITY.md](https://github.com/evolonix/react-router-next/blob/main/.github/SECURITY.md) for the private reporting process.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A clear, concise description of what the bug is.
+      placeholder: When I do X, Y happens. I expected Z.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: A link to a minimal repro (CodeSandbox, StackBlitz, or a small repo) is ideal. If you can't share one, list the exact steps.
+      placeholder: |
+        Repro link: https://stackblitz.com/edit/...
+
+        Or:
+        1. Add a route at `src/app/foo/page.tsx` ...
+        2. Navigate to /foo ...
+        3. Observe error in console ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What actually happened? Include any error messages or stack traces.
+    validations:
+      required: true
+
+  - type: input
+    id: package-version
+    attributes:
+      label: "@evolonix/react-router-next version"
+      placeholder: "0.3.0"
+    validations:
+      required: true
+
+  - type: input
+    id: react-router-version
+    attributes:
+      label: react-router version
+      placeholder: "7.x"
+    validations:
+      required: true
+
+  - type: input
+    id: react-version
+    attributes:
+      label: react / react-dom version
+      placeholder: "19.x"
+    validations:
+      required: true
+
+  - type: input
+    id: vite-version
+    attributes:
+      label: vite version
+      description: If applicable. Leave blank if you're using the CLI without Vite.
+      placeholder: "5.x or 6.x"
+
+  - type: input
+    id: node-version
+    attributes:
+      label: Node version
+      placeholder: "20.x"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - macOS
+        - Linux
+        - Windows
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Anything else that might help — screenshots, logs, related issues, what you've already tried.

@@ -50,3 +50,11 @@ npm run typegen -w demo              # regenerate the routes.d.ts shim
 
 - Node ≥ 20
 - npm ≥ 9 (uses npm workspaces)
+
+## Contributing
+
+Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, the changesets release workflow, and PR expectations. For usage questions see [SUPPORT.md](SUPPORT.md); to report a vulnerability see [SECURITY.md](.github/SECURITY.md).
+
+## License
+
+[MIT](LICENSE) © Jason Ruesch
