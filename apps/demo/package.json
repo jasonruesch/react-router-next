@@ -19,12 +19,12 @@
     "react-dom": "^19.2.5",
     "react-router": "^7.14.2",
     "@evolonix/react-router-next": "*",
-    "tailwind-merge": "^3.5.0",
-    "tailwindcss": "^4.2.4"
+    "tailwind-merge": "^3.6.0",
+    "tailwindcss": "^4.3.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@tailwindcss/vite": "^4.2.4",
+    "@tailwindcss/vite": "^4.3.0",
     "@types/node": "^24.12.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
