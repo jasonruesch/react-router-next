@@ -27,6 +27,8 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "prepare": "npm run build",
     "prepublishOnly": "npm run build"
   },
@@ -63,7 +65,8 @@
     "react-router": "^7.14.2",
     "tsup": "^8.3.0",
     "typescript": "~6.0.2",
-    "vite": "^8.0.10"
+    "vite": "^8.0.10",
+    "vitest": "^3.0.0"
   },
   "engines": {
     "node": ">=20"
