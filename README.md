@@ -48,7 +48,7 @@ npm run typegen -w demo              # regenerate the routes.d.ts shim
 
 ## Requirements
 
-- Node ≥ 20
+- Node ≥ 22
 - npm ≥ 9 (uses npm workspaces)
 
 ## Contributing

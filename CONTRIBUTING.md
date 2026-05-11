@@ -29,7 +29,7 @@ Only `packages/react-router-next` ships to npm. The `demo` app is a private work
 
 ## Prerequisites
 
-- **Node** ≥ 20 (the repo's `.nvmrc` pins the exact version used in CI — `nvm use` will pick it up)
+- **Node** ≥ 22 (the repo's `.nvmrc` pins the exact version used in CI — `nvm use` will pick it up)
 - **npm** ≥ 9 (uses npm workspaces)
 
 ## Local setup
