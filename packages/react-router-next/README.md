@@ -61,6 +61,12 @@ src/app/
 │       ├── loader.ts          # leaf loader
 │       ├── error.tsx          # error boundary
 │       └── page.tsx           # /posts/:postId
+├── notes/                        # same loading.tsx, driven by Suspense — no loader
+│   ├── _lib/use-notes.ts         # useNotes()/useNote() — promise cache + use()
+│   ├── layout.tsx
+│   ├── loading.tsx               # also fires on suspending hooks
+│   ├── page.tsx                  # /notes — useNotes() suspends on first render
+│   └── [noteId]/page.tsx         # /notes/:noteId — useNote(id) suspends per id
 ├── dashboard/                 # parallel-route slots
 │   ├── layout.tsx             # function ({ analytics }) — main flow via <Outlet/>
 │   ├── page.tsx               # /dashboard main panel
@@ -98,16 +104,16 @@ Folder-name conventions:
 
 File-name conventions inside a route folder:
 
-| File            | Role                                                                                                                                    |
-| --------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `page.tsx`      | Leaf component for the route                                                                                                            |
-| `layout.tsx`    | Wraps children via `<Outlet/>`. With sibling `@slot/` folders, the layout also receives each slot as a named prop alongside the outlet. |
-| `template.tsx`  | Like `layout.tsx` but remounts on every navigation (keyed on `pathname`).                                                               |
-| `default.tsx`   | Fallback inside a `@slot/` directory when the URL doesn't match any of the slot's pages.                                                |
-| `loader.ts`     | React Router data loader                                                                                                                |
-| `loading.tsx`   | Rendered while a parent loader is pending                                                                                               |
-| `error.tsx`     | `errorElement` for the route                                                                                                            |
-| `not-found.tsx` | App-wide not-found boundary (root only)                                                                                                 |
+| File            | Role                                                                                                                                                                                                                                                             |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `page.tsx`      | Leaf component for the route                                                                                                                                                                                                                                     |
+| `layout.tsx`    | Wraps children via `<Outlet/>`. With sibling `@slot/` folders, the layout also receives each slot as a named prop alongside the outlet.                                                                                                                          |
+| `template.tsx`  | Like `layout.tsx` but remounts on every navigation (keyed on `pathname`).                                                                                                                                                                                        |
+| `default.tsx`   | Fallback inside a `@slot/` directory when the URL doesn't match any of the slot's pages.                                                                                                                                                                         |
+| `loader.ts`     | React Router data loader                                                                                                                                                                                                                                         |
+| `loading.tsx`   | Rendered while a parent loader is pending **or** a descendant suspends — the injected boundary is both `useNavigation()`-aware and a `<Suspense>` fallback, so the same file covers `loader.ts` waits and suspending hooks (`use()`, React Query suspense, etc.) |
+| `error.tsx`     | `errorElement` for the route                                                                                                                                                                                                                                     |
+| `not-found.tsx` | App-wide not-found boundary (root only)                                                                                                                                                                                                                          |
 
 ### 4. Use the typed helpers
 

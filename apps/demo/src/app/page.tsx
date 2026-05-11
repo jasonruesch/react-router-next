@@ -7,6 +7,8 @@ import { generate as generateDoc } from "virtual:react-router-next/docs/[...slug
 import { generate as generateFile } from "virtual:react-router-next/files/[[...slug]]";
 import { generate as generatePhotos } from "virtual:react-router-next/photos";
 import { generate as generatePhoto } from "virtual:react-router-next/photos/[id]";
+import { generate as generateNotes } from "virtual:react-router-next/notes";
+import { generate as generateNote } from "virtual:react-router-next/notes/[noteId]";
 import { generate as generatePosts } from "virtual:react-router-next/posts";
 import { generate as generatePost } from "virtual:react-router-next/posts/[postId]";
 import { generate as generateSearch } from "virtual:react-router-next/search/[[query]]";
@@ -66,6 +68,24 @@ const SECTIONS: Section[] = [
       {
         to: generatePost({ postId: "999" }),
         label: generatePost({ postId: "999" }),
+      },
+    ],
+  },
+  {
+    title: "Suspense via a hook (no loader)",
+    feature: "loading.tsx + use(), no loader.ts",
+    files: [
+      "notes/layout.tsx",
+      "notes/loading.tsx",
+      "notes/page.tsx",
+      "notes/[noteId]/page.tsx",
+      "notes/_lib/use-notes.ts",
+    ],
+    links: [
+      { to: generateNotes(), label: generateNotes() },
+      {
+        to: generateNote({ noteId: "a" }),
+        label: generateNote({ noteId: "a" }),
       },
     ],
   },
