@@ -5,7 +5,6 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "start": "npm run dev",
     "typegen": "react-router-next typegen",
     "prebuild": "npm run typegen",
     "build": "tsc -b && vite build",

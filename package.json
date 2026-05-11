@@ -14,7 +14,7 @@
   ],
   "scripts": {
     "build": "npm run build -w @evolonix/react-router-next && npm run build -w demo",
-    "dev": "npm run dev -w demo",
+    "dev": "concurrently -n pkg,demo -c blue,green \"npm run dev -w @evolonix/react-router-next\" \"npm run dev -w demo\"",
     "lint": "npm run lint --workspaces --if-present",
     "typecheck": "npm run typecheck -w @evolonix/react-router-next",
     "format:check": "prettier --check .",
@@ -26,6 +26,7 @@
   "devDependencies": {
     "@changesets/changelog-github": "^0.7.0",
     "@changesets/cli": "^2.27.10",
+    "concurrently": "^9.2.1",
     "prettier": "^3.8.3"
   }
 }

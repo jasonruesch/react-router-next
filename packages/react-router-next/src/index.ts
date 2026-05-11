@@ -5,6 +5,7 @@ export {
   type RouteModuleMap,
 } from "./runtime/app-routes";
 export { generateUrl } from "./runtime/generate-url";
+export { useIsRoutePending } from "./runtime/route-pending";
 export {
   parseRouteParams,
   useRouteParams,

@@ -1,9 +1,9 @@
-import { useNavigation } from "react-router";
+import { useIsRoutePending } from "@evolonix/react-router-next";
 import { cn } from "../../lib/cn";
 
 export function RouteProgress({ className }: { className?: string }) {
-  const nav = useNavigation();
-  if (nav.state === "idle") return null;
+  const pending = useIsRoutePending();
+  if (!pending) return null;
   return (
     <div
       role="progressbar"
