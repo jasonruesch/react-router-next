@@ -31,7 +31,7 @@ export default function RootLayout() {
       <TopNav
         brand={
           <NavLink to={generateHome()} tone="default" weight="semibold">
-            Next Router Demo
+            React Router Next Demo
           </NavLink>
         }
         links={NAV_LINKS.map((l) => (

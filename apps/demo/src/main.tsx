@@ -11,7 +11,9 @@ import "./index.css";
 // Example of building routes from modules. You can also define routes manually if you prefer.
 const routes = buildRoutesFromModules(modules, appDir);
 // Update routes if needed before creating the router...
-const router = createBrowserRouter(routes);
+const router = createBrowserRouter(routes, {
+  basename: import.meta.env.BASE_URL,
+});
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

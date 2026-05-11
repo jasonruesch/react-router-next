@@ -2,6 +2,8 @@
 
 Next.js-style filesystem routing for React Router 7, delivered as a Vite plugin plus a tiny runtime. Drop a `page.tsx` into a folder, get a typed route — including typed params, typed `generate(...)` URL builders, nested layouts/loaders/loading/error boundaries, parallel routes (`@slot`), intercepting routes (`(.)`/`(..)`/`(...)`), `template.tsx` remount-on-navigation, and `_private` colocation folders.
 
+**Live demo:** <https://evolonix.github.io/react-router-next/> — every convention below is wired up and clickable.
+
 > Peer dependencies: `react ≥ 19`, `react-dom ≥ 19`, `react-router ≥ 7`, `vite ≥ 5`.
 
 ## Install

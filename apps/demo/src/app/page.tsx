@@ -157,7 +157,7 @@ export default function Home() {
   return (
     <Stack gap="lg">
       <PageHeader
-        title="Next Router Demo"
+        title="React Router Next Demo"
         description={
           <>
             File-based router on top of React Router 7. Every link below
