@@ -4,7 +4,7 @@
 
 ### Minor Changes
 
-- [#18](https://github.com/evolonix/react-router-next/pull/18) [`bf72f76`](https://github.com/evolonix/react-router-next/commit/bf72f76c03f888b8eee0aa78b67e09b83bf05de2) Thanks [@jasonruesch](https://github.com/jasonruesch)! - Rendered while a parent loader is pending or a descendant suspends — the injected boundary is both `useNavigation()`-aware and a `<Suspense>` fallback, so the same file covers `loader.ts` waits and suspending hooks (`use()`, React Query suspense, etc.)
+- [#18](https://github.com/evolonix/react-router-next/pull/18) [`bf72f76`](https://github.com/evolonix/react-router-next/commit/bf72f76c03f888b8eee0aa78b67e09b83bf05de2) Thanks [@jasonruesch](https://github.com/jasonruesch)! - `loading.tsx` rendered while a parent loader is pending or a descendant suspends — the injected boundary is both `useNavigation()`-aware and a `<Suspense>` fallback, so the same file covers `loader.ts` waits and suspending hooks (`use()`, React Query suspense, etc.)
 
 ## 0.3.1
 
