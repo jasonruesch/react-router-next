@@ -1,5 +1,11 @@
 # @evolonix/react-router-next
 
+## 0.6.0
+
+### Minor Changes
+
+- [#22](https://github.com/evolonix/react-router-next/pull/22) [`1b5848b`](https://github.com/evolonix/react-router-next/commit/1b5848b52a4902236bc97e2b0c381f703923488e) Thanks [@jasonruesch](https://github.com/jasonruesch)! - Fix intercepted routes to work with slots accurately
+
 ## 0.5.0
 
 ### Minor Changes
