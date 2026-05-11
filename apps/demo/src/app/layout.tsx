@@ -5,6 +5,7 @@ import { generate as generateHome } from "virtual:react-router-next/_root";
 import { generate as generateDashboard } from "virtual:react-router-next/dashboard";
 import { generate as generateDoc } from "virtual:react-router-next/docs/[...slug]";
 import { generate as generateFile } from "virtual:react-router-next/files/[[...slug]]";
+import { generate as generateNotes } from "virtual:react-router-next/notes";
 import { generate as generatePhotos } from "virtual:react-router-next/photos";
 import { generate as generatePosts } from "virtual:react-router-next/posts";
 import { generate as generateSearch } from "virtual:react-router-next/search/[[query]]";
@@ -17,6 +18,7 @@ const NAV_LINKS: { to: string; label: string }[] = [
   { to: generateMarketingAbout(), label: "About" },
   { to: generateMarketingPricing(), label: "Pricing" },
   { to: generatePosts(), label: "Posts" },
+  { to: generateNotes(), label: "Notes" },
   { to: generateDoc({ slug: ["intro"] }), label: "Docs" },
   { to: generateSearch({ query: undefined }), label: "Search" },
   { to: generateFile({ slug: undefined }), label: "Files" },
@@ -41,7 +43,7 @@ export default function RootLayout() {
         ))}
         actions={<ThemeToggle />}
       />
-      <Container as="main" className="py-6 sm:py-8">
+      <Container as="main" size="lg" className="py-6 sm:py-8">
         <Outlet />
       </Container>
     </div>

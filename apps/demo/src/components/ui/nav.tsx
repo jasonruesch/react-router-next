@@ -1,6 +1,6 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import { useState, type ComponentPropsWithoutRef, type ReactNode } from "react";
-import { Link, type LinkProps, useLocation } from "react-router";
+import { Link, useLocation, type LinkProps } from "react-router";
 import { cn } from "../../lib/cn";
 
 const navLinkVariants = cva(
@@ -102,7 +102,7 @@ export function TopNav({
       )}
       {...props}
     >
-      <div className="mx-auto flex w-full max-w-3xl items-center gap-3 px-4 py-3 sm:px-6 sm:py-4">
+      <div className="mx-auto flex w-full max-w-5xl items-center gap-3 px-4 py-3 sm:px-6 sm:py-4">
         <button
           type="button"
           aria-label={open ? "Close menu" : "Open menu"}
