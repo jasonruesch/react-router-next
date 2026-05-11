@@ -1,5 +1,11 @@
 # @evolonix/react-router-next
 
+## 0.3.1
+
+### Patch Changes
+
+- [#16](https://github.com/evolonix/react-router-next/pull/16) [`f335acb`](https://github.com/evolonix/react-router-next/commit/f335acb02068f2947a133ead55a6022673cd76a7) Thanks [@jasonruesch](https://github.com/jasonruesch)! - Host demo app on GitHub Pages
+
 ## 0.3.0
 
 ### Minor Changes
