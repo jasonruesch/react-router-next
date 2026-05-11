@@ -1,4 +1,4 @@
-import type { ComponentType, ReactElement } from "react";
+import { Suspense, type ComponentType, type ReactElement } from "react";
 import { Outlet, useNavigation, useParams } from "react-router";
 import { parseRouteParams } from "./use-route-params";
 
@@ -10,7 +10,12 @@ export function LoadingBoundary({
   Loading: ComponentType;
 }): ReactElement {
   const nav = useNavigation();
-  return nav.state === "loading" ? <Loading /> : <Outlet />;
+  if (nav.state === "loading") return <Loading />;
+  return (
+    <Suspense fallback={<Loading />}>
+      <Outlet />
+    </Suspense>
+  );
 }
 
 export function ComponentWithParams({

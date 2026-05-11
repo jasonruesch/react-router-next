@@ -41,6 +41,12 @@ src/app/
 │       ├── loader.ts                     # Per-post loader; throws on /posts/999
 │       ├── error.tsx                     # Errors caught here keep parent layouts mounted
 │       └── page.tsx                      # /posts/:postId
+├── notes/                                # LOADING via SUSPENSE (no loader)
+│   ├── _lib/use-notes.ts                 # useNotes()/useNote() — promise cache + use()
+│   ├── layout.tsx                        # Section header
+│   ├── loading.tsx                       # Skeleton shown while a hook suspends
+│   ├── page.tsx                          # /notes — useNotes() suspends on mount
+│   └── [noteId]/page.tsx                 # /notes/:noteId — useNote(id) suspends per id
 ├── docs/[...slug]/page.tsx               # CATCH-ALL — matched value at params["*"]
 ├── search/[[query]]/page.tsx             # OPTIONAL — :query?
 ├── files/[[...slug]]/page.tsx            # OPTIONAL CATCH-ALL — index + "*" siblings
@@ -64,16 +70,16 @@ src/app/
 
 ## File conventions
 
-| File                       | Purpose                                                 | Maps to                                                                                                                           |
-| -------------------------- | ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `page.tsx`                 | Leaf route element                                      | route's `element` (or `index: true` child if siblings/layout exist)                                                               |
-| `layout.tsx`               | Wraps children via `<Outlet />`                         | parent route's `element`. With sibling `@slot/` folders, the layout also receives each slot as a named prop alongside the outlet. |
-| `template.tsx`             | Like `layout.tsx` but remounts on every navigation      | wrapper inside the layout (or as the route element if no layout) keyed on `useLocation().pathname`                                |
-| `default.tsx`              | Slot fallback (only inside a `@slot/` directory)        | rendered in that slot when the URL doesn't match any of the slot's explicit pages                                                 |
-| `loader.ts` / `loader.tsx` | React Router loader (named export `loader`, or default) | route's `loader`                                                                                                                  |
-| `loading.tsx`              | Skeleton/fallback during navigation                     | injected boundary that swaps `<Outlet />` for the loader UI when `useNavigation().state === "loading"`                            |
-| `error.tsx`                | Error boundary                                          | route's `errorElement` (read with `useRouteError()`)                                                                              |
-| `not-found.tsx`            | Not-found page                                          | top-level `{ path: "*" }` route                                                                                                   |
+| File                       | Purpose                                                      | Maps to                                                                                                                                                                                                                 |
+| -------------------------- | ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `page.tsx`                 | Leaf route element                                           | route's `element` (or `index: true` child if siblings/layout exist)                                                                                                                                                     |
+| `layout.tsx`               | Wraps children via `<Outlet />`                              | parent route's `element`. With sibling `@slot/` folders, the layout also receives each slot as a named prop alongside the outlet.                                                                                       |
+| `template.tsx`             | Like `layout.tsx` but remounts on every navigation           | wrapper inside the layout (or as the route element if no layout) keyed on `useLocation().pathname`                                                                                                                      |
+| `default.tsx`              | Slot fallback (only inside a `@slot/` directory)             | rendered in that slot when the URL doesn't match any of the slot's explicit pages                                                                                                                                       |
+| `loader.ts` / `loader.tsx` | React Router loader (named export `loader`, or default)      | route's `loader`                                                                                                                                                                                                        |
+| `loading.tsx`              | Skeleton/fallback during navigation or while a hook suspends | injected boundary that renders the fallback when `useNavigation().state === "loading"`, and also wraps `<Outlet />` in a `<Suspense>` so suspending hooks (`use()`, React Query suspense, etc.) reuse the same fallback |
+| `error.tsx`                | Error boundary                                               | route's `errorElement` (read with `useRouteError()`)                                                                                                                                                                    |
+| `not-found.tsx`            | Not-found page                                               | top-level `{ path: "*" }` route                                                                                                                                                                                         |
 
 ## Segment conventions
 
@@ -135,6 +141,8 @@ The route literal isn't validated against the actual mounted route — passing `
 
 - **`loading.tsx` is visible only during sibling navigation under the same layout.** RR7's data router keeps the old UI mounted while new loaders run, so a deeper loading boundary doesn't render until _after_ the transition completes. Going `/posts/1 → /posts/2` shows it; going `/ → /posts/1` does not. The root layout compensates with a thin pulsing bar driven by `useNavigation()` so the initial transition is still visible.
 
+- **`loading.tsx` also doubles as a Suspense boundary.** The injected wrapper renders the fallback when `useNavigation().state === "loading"` _and_ wraps `<Outlet />` in a `<Suspense fallback={<Loading />}>`. A route with no `loader.ts` can still show the same skeleton by suspending inside the page — `use(promise)`, React Query's suspense mode, etc. The `/notes` section is wired this way; `useNotes()` throws a cached promise on first render and `loading.tsx` catches it.
+
 - **`error.tsx` replaces the route's element in place.** A per-route `error.tsx` (e.g. at `posts/[postId]/error.tsx`) only swaps the leaf — root and section layouts stay mounted. A root-level `error.tsx` would replace the _root layout_ (header included) on any unhandled error, so this demo doesn't add one and lets RR's default fallback show for non-leaf failures. Try `/posts/999` to see scoped error handling.
 
 - **Loaders attach to the page leaf, not the layout.** A `loader.ts` file at directory `X` provides data for `X/page.tsx` (read with `useLoaderData()`). If you want a layout to fetch its own data, put a loader on a route that owns the layout — currently the impl doesn't do that automatically. (Adding it would mean attaching the loader to the layout's route and using `useRouteLoaderData(id)` in the page, with explicit route IDs.)
@@ -157,6 +165,7 @@ The route literal isn't validated against the actual mounted route — passing `
 - `/about`, `/pricing` — route group (note the URL has no `/(marketing)`)
 - `/posts` — loader + loading skeleton (click between posts to see `loading.tsx`)
 - `/posts/1`, `/posts/999` — dynamic + error
+- `/notes`, `/notes/a` — same `loading.tsx`, but driven by a suspending hook instead of a loader
 - `/docs/intro`, `/docs/api/v2/reference` — catch-all
 - `/search`, `/search/react-router` — optional segment
 - `/files`, `/files/readme`, `/files/src/app/page.tsx` — optional catch-all
