@@ -9,10 +9,11 @@ export default function PhotosPage() {
   return (
     <Stack gap="md">
       <Text>
-        Click a photo. Inside the app the modal interceptor matches —{" "}
-        <FilePath>src/app/photos/(.)[id]/page.tsx</FilePath> — so you stay on
-        the grid with the photo overlaid. Refresh on a photo URL to see the
-        full-page version from <FilePath>photos/[id]/page.tsx</FilePath>.
+        Click a photo. The <FilePath>@modal</FilePath> parallel slot pairs with
+        the intercepting route at{" "}
+        <FilePath>src/app/photos/@modal/(.)[id]/page.tsx</FilePath>, so the grid
+        stays mounted while the photo overlays. Refresh on a photo URL to see
+        the full-page version from <FilePath>photos/[id]/page.tsx</FilePath>.
       </Text>
       <ul className="m-0 grid list-none grid-cols-2 gap-3 p-0 sm:grid-cols-3">
         {PHOTOS.map((p) => (

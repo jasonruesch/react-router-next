@@ -1,12 +1,12 @@
 import type { ComponentType, ReactElement, ReactNode } from "react";
 import type { LoaderFunction, RouteObject } from "react-router";
-import { ComponentWithParams, LoadingBoundary } from "./route-components";
 import {
   InterceptedRoute,
   ParallelLayout,
   TemplateRemount,
   type SlotConfig,
 } from "./parallel-routes";
+import { ComponentWithParams, LoadingBoundary } from "./route-components";
 
 type LayoutWithSlots = ComponentType<{
   params?: RouteParamsRecord;
@@ -45,6 +45,21 @@ type Intercept = {
   /** Resolved target URL pattern in routeKey form (e.g. "photos/[id]"). */
   targetKey: string;
   node: Node;
+  /** True when the intercept folder lives under at least one `@slot` segment. */
+  slotOwned: boolean;
+  /**
+   * Route key of the layout that owns the slot (e.g. "photos" for an intercept
+   * at `photos/@modal/(.)[id]`). Empty for root-level layouts. Only meaningful
+   * when `slotOwned` is true.
+   */
+  parentLayoutKey: string;
+  /**
+   * Name of the innermost `@slot` enclosing the intercept (without the `@`).
+   * Only meaningful when `slotOwned` is true.
+   */
+  slotName: string | null;
+  /** Intercept folder path, used in build-time warnings. */
+  folderPath: string;
 };
 
 type Tree = {
@@ -183,7 +198,25 @@ function buildTree(modules: RouteModuleMap, appDir: string): Tree {
     if (!node) {
       node = emptyNode();
       interceptNodes.set(folderKey, node);
-      intercepts.push({ targetKey, node });
+      const slotOwned = fsPrefix.some(isSlotSegment);
+      // Parent layout = the deepest non-slot ancestor. `routeKeySegmentsOf`
+      // already strips `@slot` and `_private` segments.
+      const parentLayoutKey = routeKeySegmentsOf(fsPrefix).join("/");
+      let slotName: string | null = null;
+      for (let i = fsPrefix.length - 1; i >= 0; i--) {
+        if (isSlotSegment(fsPrefix[i])) {
+          slotName = fsPrefix[i].slice(1);
+          break;
+        }
+      }
+      intercepts.push({
+        targetKey,
+        node,
+        slotOwned,
+        parentLayoutKey,
+        slotName,
+        folderPath: folderKey,
+      });
     }
     let cur = node;
     for (const seg of postIntercept) {
@@ -240,7 +273,12 @@ function renderComponent(
   );
 }
 
-function lowerSlotToConfig(slotNode: Node, slotPath: string): SlotConfig {
+function lowerSlotToConfig(
+  slotNode: Node,
+  slotPath: string,
+  allIntercepts: readonly Intercept[],
+  slotIntercepts: readonly Intercept[],
+): SlotConfig {
   const Default = slotNode.files.default?.default;
   const defaultElement: ReactNode | null = Default
     ? renderComponent(Default, slotPath)
@@ -251,7 +289,27 @@ function lowerSlotToConfig(slotNode: Node, slotPath: string): SlotConfig {
     children: slotNode.children,
     slots: slotNode.slots,
   };
-  const routes = nodeToRoute(stripped, null, slotPath, undefined);
+  const routes = nodeToRoute(
+    stripped,
+    null,
+    slotPath,
+    undefined,
+    allIntercepts,
+  );
+  // Inject slot-owned intercept routes so `useRoutes(slot.routes)` matches the
+  // intercept URL pattern on soft navigation. Wrap the interceptor element in
+  // `InterceptedRoute` so hard loads (POP) fall through to the slot's default.
+  for (const intercept of slotIntercepts) {
+    const interceptorEl = lowerInterceptor(intercept.node, intercept.targetKey);
+    const targetSegs = routeKeyToRrSegments(intercept.targetKey);
+    const parentSegs = routeKeyToRrSegments(intercept.parentLayoutKey);
+    const relSegs = targetSegs.slice(parentSegs.length);
+    if (relSegs.length === 0) continue;
+    routes.push({
+      path: relSegs.join("/"),
+      element: <InterceptedRoute Interceptor={interceptorEl} Target={null} />,
+    });
+  }
   return { routes, defaultElement };
 }
 
@@ -282,6 +340,7 @@ function nodeToRoute(
   segment: string | null,
   path: string,
   NotFound: ComponentType | undefined,
+  intercepts: readonly Intercept[],
 ): RouteObject[] {
   const Layout = node.files.layout?.default;
   const Page = node.files.page?.default;
@@ -296,7 +355,7 @@ function nodeToRoute(
   for (const [childSegment, childNode] of node.children) {
     const childPath = path === "" ? childSegment : `${path}/${childSegment}`;
     childRoutes.push(
-      ...nodeToRoute(childNode, childSegment, childPath, NotFound),
+      ...nodeToRoute(childNode, childSegment, childPath, NotFound, intercepts),
     );
   }
 
@@ -334,7 +393,18 @@ function nodeToRoute(
               `Slot loaders are not supported in V1.`,
           );
         }
-        slotConfigs[slotName] = lowerSlotToConfig(slotNode, path);
+        const slotIntercepts = intercepts.filter(
+          (i) =>
+            i.slotOwned &&
+            i.parentLayoutKey === path &&
+            i.slotName === slotName,
+        );
+        slotConfigs[slotName] = lowerSlotToConfig(
+          slotNode,
+          path,
+          intercepts,
+          slotIntercepts,
+        );
       }
     }
   }
@@ -462,9 +532,88 @@ function findRouteByPath(
   return null;
 }
 
-function applyIntercept(rootRoute: RouteObject, intercept: Intercept): void {
+/**
+ * Find the `index: true` leaf under a parent layout. `findRouteByPath` may
+ * return either the layout route or its index leaf directly, so handle both:
+ * if `route` is itself an index leaf, return it; otherwise descend through
+ * pathless wrapper routes (`LoadingBoundary`, `TemplateRemount`, route groups)
+ * to find the index child. Returns `null` when the parent has no page.
+ */
+function findIndexLeaf(route: RouteObject | null): RouteObject | null {
+  if (!route) return null;
+  if (route.index) return route;
+  if (!route.children) return null;
+  for (const c of route.children) {
+    if (c.index) return c;
+    if (c.path === undefined && c.children) {
+      const found = findIndexLeaf(c);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
+/**
+ * Find the path-matching route directly (NOT its inner index child). Used
+ * for slot-owned intercepts where we need to wrap at the same depth as the
+ * parent layout's outlet swaps between matched children, so the wrapper type
+ * stays stable across the soft nav and React reconciles the inner page
+ * instead of unmounting and remounting it.
+ *
+ * Contrast with `findRouteByPath`, which returns the index leaf when the
+ * matched route has children (used by legacy intercepts to preserve any
+ * `template.tsx` / `loading.tsx` wrapping above the page).
+ */
+function findRouteAtPath(
+  routes: readonly RouteObject[],
+  targetSegments: readonly string[],
+): RouteObject | null {
+  if (targetSegments.length === 0) {
+    for (const r of routes) {
+      if (r.index) return r;
+    }
+    return null;
+  }
+  const [head, ...rest] = targetSegments;
+  for (const r of routes) {
+    if (r.index) continue;
+    if (r.path === undefined) {
+      if (r.children) {
+        const found = findRouteAtPath(r.children, targetSegments);
+        if (found) return found;
+      }
+      continue;
+    }
+    if (r.path === head) {
+      if (rest.length === 0) return r;
+      if (r.children) {
+        const found = findRouteAtPath(r.children, rest);
+        if (found) return found;
+      }
+    }
+  }
+  return null;
+}
+
+function applyIntercept(
+  rootRoute: RouteObject,
+  intercept: Intercept,
+  /**
+   * Caches the *original* index element per parent layout so multiple slot-
+   * owned intercepts under the same parent share the same Interceptor and the
+   * index leaf is wrapped exactly once. Mutated as a side effect.
+   */
+  parentIndexCache: Map<string, ReactNode>,
+): void {
   const segs = routeKeyToRrSegments(intercept.targetKey);
-  const target = findRouteByPath([rootRoute], segs);
+  // Slot-owned intercepts wrap at the route level (the depth at which the
+  // parent layout's outlet swaps between matched children) so the outlet
+  // sees the same wrapper type for both index and `:id`. Legacy intercepts
+  // wrap at the inner page leaf so any `template.tsx` / `loading.tsx` above
+  // it still applies to the interceptor's render.
+  const target = intercept.slotOwned
+    ? findRouteAtPath([rootRoute], segs)
+    : findRouteByPath([rootRoute], segs);
   if (!target) {
     throw new Error(
       `[react-router-next] Intercepting route targets "${intercept.targetKey}", ` +
@@ -475,6 +624,52 @@ function applyIntercept(rootRoute: RouteObject, intercept: Intercept): void {
     throw new Error(
       `[react-router-next] Intercepting route target "${intercept.targetKey}" has no element to wrap.`,
     );
+  }
+  // Slot-owned intercepts: the interceptor renders
+  // inside its `@slot`, and the main outlet's matched [id] route should
+  // "freeze" to the parent layout's page on soft navigation, so the underlying
+  // page (e.g. a photo grid) stays visible behind the modal slot. The actual
+  // interceptor element is injected into the slot's `routes` by
+  // `lowerSlotToConfig`; here we wrap both the target and the parent's index
+  // leaf with `InterceptedRoute` so the outlet position renders the same
+  // wrapper type whether the matched route is the index or the [id] — React
+  // reconciles the wrapper and keeps the inner page mounted, avoiding a
+  // remount flicker as the modal opens.
+  //
+  // Note: this is a static approximation of Next.js's "freeze to pre-nav URL"
+  // — it always anchors to the parent layout's `page.tsx`, not whatever the
+  // user navigated *from*. Sufficient for the canonical pattern; revisit if
+  // freezing to deeper sibling URLs is needed.
+  if (intercept.slotOwned) {
+    const key = intercept.parentLayoutKey;
+    let originalIndexEl: ReactNode;
+    if (parentIndexCache.has(key)) {
+      originalIndexEl = parentIndexCache.get(key) ?? null;
+    } else {
+      const parentSegs = routeKeyToRrSegments(key);
+      const parentRoute = findRouteByPath([rootRoute], parentSegs);
+      const indexLeaf = findIndexLeaf(parentRoute);
+      originalIndexEl = indexLeaf?.element ?? null;
+      parentIndexCache.set(key, originalIndexEl);
+      if (originalIndexEl === null) {
+        console.warn(
+          `[react-router-next] Slot-owned intercepting route at "${intercept.folderPath}" ` +
+            `cannot freeze: parent layout at "${key || "/"}" ` +
+            `has no page.tsx. Soft navigation will render nothing in the main outlet.`,
+        );
+      } else if (indexLeaf) {
+        indexLeaf.element = (
+          <InterceptedRoute
+            Interceptor={originalIndexEl}
+            Target={originalIndexEl}
+          />
+        );
+      }
+    }
+    target.element = (
+      <InterceptedRoute Interceptor={originalIndexEl} Target={target.element} />
+    );
+    return;
   }
   const interceptorEl = lowerInterceptor(intercept.node, intercept.targetKey);
   target.element = (
@@ -488,9 +683,10 @@ export function buildRoutesFromModules(
 ): RouteObject[] {
   const tree = buildTree(modules, appDir);
   const NotFound = tree.root.files["not-found"]?.default;
-  const [root] = nodeToRoute(tree.root, null, "", NotFound);
+  const [root] = nodeToRoute(tree.root, null, "", NotFound, tree.intercepts);
+  const parentIndexCache = new Map<string, ReactNode>();
   for (const intercept of tree.intercepts) {
-    applyIntercept(root, intercept);
+    applyIntercept(root, intercept, parentIndexCache);
   }
   if (NotFound) {
     (root.children ??= []).push({ path: "*", element: <NotFound /> });
