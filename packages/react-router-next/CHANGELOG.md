@@ -1,5 +1,11 @@
 # @evolonix/react-router-next
 
+## 0.5.0
+
+### Minor Changes
+
+- [#20](https://github.com/evolonix/react-router-next/pull/20) [`855558f`](https://github.com/evolonix/react-router-next/commit/855558fc07b6ec464e50ff5661ba1c1724cad385) Thanks [@jasonruesch](https://github.com/jasonruesch)! - Add route pending features for navigation or loading boundary suspense
+
 ## 0.4.0
 
 ### Minor Changes
