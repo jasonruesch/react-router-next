@@ -58,12 +58,15 @@ src/app/
 │       ├── page.tsx                      # rendered for /dashboard
 │       ├── settings/page.tsx             # rendered for /dashboard/settings
 │       └── default.tsx                   # fallback when slot has no match
-└── photos/                               # INTERCEPTING ROUTES + TEMPLATE + PRIVATE FOLDER
-    ├── page.tsx                          # /photos grid
+└── photos/                               # INTERCEPTING ROUTES INSIDE A PARALLEL SLOT + TEMPLATE + PRIVATE FOLDER
+    ├── layout.tsx                        # function ({ modal }) — renders <Outlet /> then {modal}
+    ├── page.tsx                          # /photos grid (stays mounted behind the modal)
     ├── [id]/                             # full-page detail
     │   ├── page.tsx                      # /photos/:id
     │   └── template.tsx                  # remounts on every navigation
-    ├── (.)[id]/page.tsx                  # modal interceptor — rendered on PUSH/REPLACE
+    ├── @modal/                           # parallel slot — invisible to URL
+    │   ├── default.tsx                   # null fallback when the slot has no match
+    │   └── (.)[id]/page.tsx              # modal interceptor — rendered on PUSH/REPLACE
     └── _components/                      # PRIVATE folder — never routes
         └── dialog.tsx                    # importable helper module
 ```
@@ -155,7 +158,9 @@ The route literal isn't validated against the actual mounted route — passing `
 
 - **Intercepting routes only intercept on PUSH/REPLACE.** The wrapper checks `useNavigationType()`: `POP` (back/forward) and initial loads always render the original target. Refresh on a `/photos/1` URL shows the full-page detail, not the modal. Loaders/layouts/loading inside an interceptor folder are out of scope (V1) and produce a build-time warning.
 
-- **Slot and interceptor `routeKey`s are URL-aligned.** A page at `dashboard/@analytics/settings/page.tsx` has the same routeKey as `dashboard/settings` — the slot prefix is stripped. Likewise, `photos/(.)[id]/page.tsx` shares the routeKey `photos/[id]` with its target. Both files import `RouteProps` / `generate` from the same `virtual:react-router-next/...` module.
+- **Slot-owned intercepts pair with a parent `@slot`.** The `/photos` modal lives at `photos/@modal/(.)[id]/page.tsx` — the `(.)[id]` interceptor sits _inside_ a parallel slot, and `photos/layout.tsx` renders the slot prop (`{modal}`) alongside `<Outlet />`. On soft-nav to `/photos/:id` the slot matches the interceptor while the main outlet "freezes" to `photos/page.tsx`, so the grid stays mounted under the modal — the Next.js-canonical layering. The slot needs a `default.tsx` (returning `null` is fine) so it renders nothing when no photo is selected. A naked `photos/(.)[id]/page.tsx` interceptor still works, but swaps the page outright rather than overlaying it.
+
+- **Slot and interceptor `routeKey`s are URL-aligned.** A page at `dashboard/@analytics/settings/page.tsx` has the same routeKey as `dashboard/settings` — the slot prefix is stripped. Likewise, `photos/@modal/(.)[id]/page.tsx` shares the routeKey `photos/[id]` with its target (both the `@modal` prefix and the `(.)` prefix are stripped). Both files import `RouteProps` / `generate` from the same `virtual:react-router-next/...` module.
 
 - **Intercepting-route targets are required.** If `(.)x` resolves to a URL pattern that has no real route, the build fails — a refresh on that URL must always render something.
 

@@ -75,12 +75,15 @@ src/app/
 │       ├── page.tsx           # rendered for /dashboard
 │       ├── settings/page.tsx  # rendered for /dashboard/settings
 │       └── default.tsx        # fallback when slot has no match
-└── photos/
+└── photos/                   # intercepting route inside a parallel slot
+    ├── layout.tsx             # function ({ modal }) — main flow via <Outlet/>, modal via slot prop
     ├── page.tsx               # /photos
     ├── [id]/
-    │   ├── page.tsx           # full-page detail
+    │   ├── page.tsx           # full-page detail (POP / refresh)
     │   └── template.tsx       # remounts on every navigation
-    ├── (.)[id]/page.tsx       # modal interceptor — rendered on PUSH/REPLACE
+    ├── @modal/                # parallel slot — invisible in URL
+    │   ├── default.tsx        # null fallback when no photo is selected
+    │   └── (.)[id]/page.tsx   # modal interceptor — rendered on PUSH/REPLACE
     └── _components/           # private folder — never routed, importable
         └── dialog.tsx
 ```
@@ -221,13 +224,6 @@ Each slot subtree can have its own `page.tsx` files (matching the parent's URL s
 
 A folder whose name starts with `(.)`, `(..)`, `(..)(..)`, or `(...)` is an **interceptor**: its `page.tsx` is rendered when the user soft-navigates (PUSH/REPLACE) to a target URL elsewhere in the tree. On reload, back/forward, or direct visit, the original target page renders instead. The interceptor and the target share the same routeKey and `useRouteParams`/`generate` virtual module.
 
-```
-photos/
-├── page.tsx              # /photos
-├── [id]/page.tsx         # /photos/:id — full-page detail (POP / refresh)
-└── (.)[id]/page.tsx      # /photos/:id — modal (PUSH / REPLACE from in-app Link)
-```
-
 Prefix semantics (counted in **filesystem** levels — slots count, group folders count, but the prefix itself does not):
 
 - `(.)x` — same level as the interceptor's containing folder; appends `x`.
@@ -235,7 +231,25 @@ Prefix semantics (counted in **filesystem** levels — slots count, group folder
 - `(..)(..)x` — pops two levels.
 - `(...)x` — anchors at the app root.
 
-> **V1 caveats:** the interceptor folder may only contain `page.tsx`. A `loader.ts` or `layout.tsx` inside an interceptor is dropped with a build-time warning. The intercept target route must exist — otherwise the build fails (a refresh on the URL has to render _something_).
+### The canonical pattern: interceptor inside a parallel slot
+
+The Next.js-canonical "click a thumbnail → photo overlays the grid" pattern combines an interceptor with a `@slot` so the underlying page stays mounted behind the modal:
+
+```
+photos/
+├── layout.tsx                # function ({ modal }) { return <><Outlet />{modal}</> }
+├── page.tsx                  # /photos — grid (stays mounted on soft-nav)
+├── [id]/page.tsx             # /photos/:id — full-page detail (POP / refresh)
+└── @modal/                   # parallel slot — invisible in URL
+    ├── default.tsx           # `return null` — fallback when no photo is selected
+    └── (.)[id]/page.tsx      # /photos/:id — modal (PUSH / REPLACE from in-app Link)
+```
+
+On soft-nav to `/photos/:id`, the `@modal` slot matches the interceptor and the main outlet "freezes" to `photos/page.tsx`, so the grid stays mounted under the modal. On hard load / refresh / POP, the slot falls back to `default.tsx` and the main outlet renders the full-page `[id]/page.tsx`. The slot's `default.tsx` is required — without it the slot would render its previous match and leave a stale modal mounted after the URL changes back to `/photos`.
+
+A bare interceptor without the slot (`photos/(.)[id]/page.tsx`) still works — but it swaps the page element outright instead of overlaying it, so the grid unmounts on soft-nav. Use the slot variant when you want true overlay layering.
+
+> **V1 caveats:** the interceptor folder may only contain `page.tsx`. A `loader.ts` or `layout.tsx` inside an interceptor is dropped with a build-time warning. The intercept target route must exist — otherwise the build fails (a refresh on the URL has to render _something_). The "freeze" behavior is a static approximation of Next.js's freeze-to-pre-nav-URL: the main outlet always anchors to the parent layout's `page.tsx`, not to whichever sibling URL the user navigated _from_.
 
 ## `template.tsx` and `_private` folders
 
