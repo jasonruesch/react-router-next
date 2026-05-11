@@ -2,6 +2,8 @@
 
 Workspace monorepo containing **`@evolonix/react-router-next`** — a publishable npm package that brings Next.js-style filesystem routing to React Router 7 — and **`demo`**, the example app that exercises every feature of the package.
 
+**Live demo:** <https://evolonix.github.io/react-router-next/>
+
 ## Layout
 
 ```
@@ -25,6 +27,8 @@ How types reach consumers is hybrid: at runtime, the Vite plugin serves per-rout
 ### `apps/demo/`
 
 A Vite + React 19 app that consumes the workspace package and demonstrates every routing feature: nested layouts, route groups (`(marketing)`), dynamic segments (`[postId]`), catch-all (`[...slug]`), optional and optional catch-all (`[[query]]`, `[[...slug]]`), per-route loaders, loading boundaries, error boundaries, parallel-route slots (`dashboard/@analytics`), intercepting routes (`photos/(.)[id]` modal vs. `photos/[id]` full page), `template.tsx` remount-on-navigation, `_private` colocation folders, and `not-found.tsx`. Long-form documentation of the conventions lives in [`apps/demo/README.md`](apps/demo/README.md).
+
+Hosted at <https://evolonix.github.io/react-router-next/> — deployed from `main` by [`.github/workflows/deploy-demo.yml`](.github/workflows/deploy-demo.yml).
 
 ## Working in the repo
 
