@@ -1,5 +1,11 @@
 # @evolonix/react-router-next
 
+## 0.7.0
+
+### Minor Changes
+
+- [`1ad44bf`](https://github.com/evolonix/react-router-next/commit/1ad44bf36b468247e78ba1ac5b26b75be78b67a9) Thanks [@jasonruesch](https://github.com/jasonruesch)! - Configure release for Trusted Publisher
+
 ## 0.6.0
 
 ### Minor Changes
