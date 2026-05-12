@@ -1,4 +1,4 @@
-import { Outlet } from "react-router";
+import { Outlet, ScrollRestoration } from "react-router";
 import { generate as generateMarketingAbout } from "virtual:react-router-next/(marketing)/about";
 import { generate as generateMarketingPricing } from "virtual:react-router-next/(marketing)/pricing";
 import { generate as generateHome } from "virtual:react-router-next/_root";
@@ -29,6 +29,7 @@ const NAV_LINKS: { to: string; label: string }[] = [
 export default function RootLayout() {
   return (
     <div className="flex min-h-screen flex-col">
+      <ScrollRestoration />
       <RouteProgress />
       <TopNav
         brand={
