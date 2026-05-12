@@ -148,7 +148,8 @@ const SECTIONS: Section[] = [
     ],
   },
   {
-    title: "Intercepting routes in a parallel slot + template + _private folder",
+    title:
+      "Intercepting routes in a parallel slot + template + _private folder",
     feature: "@slot/, (.)x, template.tsx, _components/",
     files: [
       "photos/layout.tsx",
