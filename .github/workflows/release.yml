@@ -30,7 +30,6 @@ jobs:
           cache: npm
           registry-url: https://registry.npmjs.org
       - run: npm ci
-      - run: npm run build -w @evolonix/react-router-next
       - name: Get next version
         id: next_version
         run: |
