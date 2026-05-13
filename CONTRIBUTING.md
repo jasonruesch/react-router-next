@@ -38,8 +38,7 @@ Only `packages/react-router-next` ships to npm. The `demo` app is a private work
 git clone https://github.com/evolonix/react-router-next.git
 cd react-router-next
 npm install                       # install all workspaces
-npm run build                     # build the package, then build the demo
-npm run dev                       # start the demo's Vite dev server
+npm run dev                       # run the package build (tsup --watch) and the demo's Vite dev server concurrently
 ```
 
 Per-workspace commands:

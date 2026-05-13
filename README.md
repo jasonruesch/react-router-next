@@ -36,8 +36,7 @@ From the repo root:
 
 ```sh
 npm install                       # install all workspaces
-npm run build                     # build the package, then build the demo
-npm run dev                       # start the demo's Vite dev server
+npm run dev                       # run the package build (tsup --watch) and the demo's Vite dev server concurrently
 ```
 
 Per-workspace commands use npm workspaces:
