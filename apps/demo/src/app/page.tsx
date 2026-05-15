@@ -5,14 +5,15 @@ import { generate as generateDashboardOther } from "virtual:react-router-next/da
 import { generate as generateDashboardSettings } from "virtual:react-router-next/dashboard/settings";
 import { generate as generateDoc } from "virtual:react-router-next/docs/[...slug]";
 import { generate as generateFile } from "virtual:react-router-next/files/[[...slug]]";
-import { generate as generatePhotos } from "virtual:react-router-next/photos";
-import { generate as generatePhoto } from "virtual:react-router-next/photos/[id]";
 import { generate as generateNotes } from "virtual:react-router-next/notes";
 import { generate as generateNote } from "virtual:react-router-next/notes/[noteId]";
+import { generate as generatePhotos } from "virtual:react-router-next/photos";
+import { generate as generatePhoto } from "virtual:react-router-next/photos/[id]";
 import { generate as generatePosts } from "virtual:react-router-next/posts";
 import { generate as generatePost } from "virtual:react-router-next/posts/[postId]";
 import { Card } from "../components/ui/card";
 import { Code, FilePath } from "../components/ui/code";
+import { Divider } from "../components/ui/divider";
 import { Heading } from "../components/ui/heading";
 import { NavLink } from "../components/ui/nav";
 import { PageHeader } from "../components/ui/page-header";
@@ -188,8 +189,8 @@ export default function Home() {
         title="React Router Next Demo"
         description={
           <>
-            File-based router on top of React Router 7. Every link below
-            exercises a feature implemented in{" "}
+            Next.js-style filesystem routing for React Router 7. Every link
+            below exercises a feature implemented in{" "}
             <FilePath>src/lib/AppRouter.tsx</FilePath>.
           </>
         }
@@ -213,6 +214,10 @@ export default function Home() {
                   </li>
                 ))}
               </Stack>
+              <Divider />
+              <Text size="sm" weight="semibold">
+                Links to try it out:
+              </Text>
               <Stack as="ul" gap="xs" className="list-none p-0 m-0">
                 {s.links.map((l) => (
                   <li key={l.to}>
