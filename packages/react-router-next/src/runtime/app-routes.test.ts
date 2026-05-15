@@ -7,7 +7,7 @@ import {
   ParallelLayout,
   type SlotConfig,
 } from "./parallel-routes";
-import { ComponentWithParams } from "./route-components";
+import { ComponentWithParams, NotFoundBoundary } from "./route-components";
 
 const APP_DIR = "/src/app";
 
@@ -210,6 +210,133 @@ describe("buildRoutesFromModules — legacy non-slot intercepting routes", () =>
     );
     expect(interceptor.type).toBe(ComponentWithParams);
     expect(interceptor.props.Component).toBe(InterceptPage);
+  });
+});
+
+describe("buildRoutesFromModules — per-segment not-found.tsx", () => {
+  it("appends a splat fallback to a segment that owns a not-found.tsx", () => {
+    const RootLayout = comp("RootLayout");
+    const PostsLayout = comp("PostsLayout");
+    const PostsPage = comp("PostsPage");
+    const PostsNotFound = comp("PostsNotFound");
+
+    const modules: RouteModuleMap = {
+      [`${APP_DIR}/layout.tsx`]: { default: RootLayout },
+      [`${APP_DIR}/posts/layout.tsx`]: { default: PostsLayout },
+      [`${APP_DIR}/posts/page.tsx`]: { default: PostsPage },
+      [`${APP_DIR}/posts/not-found.tsx`]: { default: PostsNotFound },
+    };
+
+    const [root] = buildRoutesFromModules(modules, APP_DIR);
+    const posts = findChild(root, (r) => r.path === "posts");
+    // Splat lives inside posts so any unmatched /posts/... renders PostsNotFound.
+    function findSplatElement(r: RouteObject): ReactElement | null {
+      if (r.path === "*" && isValidElement(r.element)) return r.element;
+      for (const c of r.children ?? []) {
+        const found = findSplatElement(c);
+        if (found) return found;
+      }
+      return null;
+    }
+    const splatEl = findSplatElement(posts);
+    expect(splatEl).not.toBeNull();
+    expect(asElement(splatEl!).type).toBe(PostsNotFound);
+  });
+
+  it("nests the splat fallbacks so a deeper not-found shadows a shallower one", () => {
+    const RootLayout = comp("RootLayout");
+    const PostsLayout = comp("PostsLayout");
+    const PostsNotFound = comp("PostsNotFound");
+    const RootNotFound = comp("RootNotFound");
+
+    const modules: RouteModuleMap = {
+      [`${APP_DIR}/layout.tsx`]: { default: RootLayout },
+      [`${APP_DIR}/not-found.tsx`]: { default: RootNotFound },
+      [`${APP_DIR}/posts/layout.tsx`]: { default: PostsLayout },
+      [`${APP_DIR}/posts/not-found.tsx`]: { default: PostsNotFound },
+    };
+
+    const [root] = buildRoutesFromModules(modules, APP_DIR);
+
+    function collectSplats(
+      r: RouteObject,
+      out: ComponentType[] = [],
+    ): ComponentType[] {
+      if (r.path === "*" && isValidElement(r.element)) {
+        out.push(asElement(r.element).type as ComponentType);
+      }
+      for (const c of r.children ?? []) collectSplats(c, out);
+      return out;
+    }
+    const splats = collectSplats(root);
+    // Both segments have their own splat — RR picks the deeper one for nested URLs.
+    expect(splats).toContain(RootNotFound);
+    expect(splats).toContain(PostsNotFound);
+  });
+
+  it("wires a NotFoundBoundary errorElement so notFound() inside a child renders the nearest ancestor not-found.tsx", () => {
+    const RootLayout = comp("RootLayout");
+    const PostsLayout = comp("PostsLayout");
+    const PostPage = comp("PostPage");
+    const PostError = comp("PostError");
+    const PostsNotFound = comp("PostsNotFound");
+
+    const modules: RouteModuleMap = {
+      [`${APP_DIR}/layout.tsx`]: { default: RootLayout },
+      [`${APP_DIR}/posts/layout.tsx`]: { default: PostsLayout },
+      [`${APP_DIR}/posts/not-found.tsx`]: { default: PostsNotFound },
+      [`${APP_DIR}/posts/[postId]/page.tsx`]: { default: PostPage },
+      [`${APP_DIR}/posts/[postId]/error.tsx`]: { default: PostError },
+    };
+
+    const [root] = buildRoutesFromModules(modules, APP_DIR);
+    const posts = findChild(root, (r) => r.path === "posts");
+    const postId = findChild(posts, (r) => r.path === ":postId");
+    const errorBoundary = asElement<{
+      NotFound?: ComponentType;
+      ErrorComponent?: ComponentType;
+    }>(postId.errorElement);
+    expect(errorBoundary.type).toBe(NotFoundBoundary);
+    // Inherited from posts/not-found.tsx, even though [postId] has only error.tsx of its own.
+    expect(errorBoundary.props.NotFound).toBe(PostsNotFound);
+    expect(errorBoundary.props.ErrorComponent).toBe(PostError);
+  });
+
+  it("does not set an errorElement on segments with neither error.tsx nor own not-found.tsx", () => {
+    const RootLayout = comp("RootLayout");
+    const PostsLayout = comp("PostsLayout");
+    const PostPage = comp("PostPage");
+
+    const modules: RouteModuleMap = {
+      [`${APP_DIR}/layout.tsx`]: { default: RootLayout },
+      [`${APP_DIR}/posts/layout.tsx`]: { default: PostsLayout },
+      [`${APP_DIR}/posts/[postId]/page.tsx`]: { default: PostPage },
+    };
+
+    const [root] = buildRoutesFromModules(modules, APP_DIR);
+    const posts = findChild(root, (r) => r.path === "posts");
+    const postId = findChild(posts, (r) => r.path === ":postId");
+    expect(postId.errorElement).toBeUndefined();
+    expect(posts.errorElement).toBeUndefined();
+  });
+});
+
+describe("buildRoutesFromModules — optional catch-all [[...slug]]", () => {
+  it("emits an index + splat pair under the parent", () => {
+    const RootLayout = comp("RootLayout");
+    const FilesPage = comp("FilesPage");
+
+    const modules: RouteModuleMap = {
+      [`${APP_DIR}/layout.tsx`]: { default: RootLayout },
+      [`${APP_DIR}/files/[[...slug]]/page.tsx`]: { default: FilesPage },
+    };
+
+    const [root] = buildRoutesFromModules(modules, APP_DIR);
+    const files = findChild(root, (r) => r.path === "files");
+    const hasIndex = files.children?.some((c) => c.index) ?? false;
+    const hasSplat = files.children?.some((c) => c.path === "*") ?? false;
+    expect(hasIndex).toBe(true);
+    expect(hasSplat).toBe(true);
   });
 });
 

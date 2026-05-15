@@ -32,6 +32,11 @@ export default function PostsIndex() {
             999. (loader throws — exercises error.tsx)
           </NavLink>
         </li>
+        <li className="py-2">
+          <NavLink to={generatePost({ postId: "missing" })} tone="muted">
+            missing. (loader calls notFound() — exercises posts/not-found.tsx)
+          </NavLink>
+        </li>
       </ul>
     </Stack>
   );

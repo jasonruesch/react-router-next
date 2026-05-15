@@ -8,7 +8,6 @@ import { generate as generateFile } from "virtual:react-router-next/files/[[...s
 import { generate as generateNotes } from "virtual:react-router-next/notes";
 import { generate as generatePhotos } from "virtual:react-router-next/photos";
 import { generate as generatePosts } from "virtual:react-router-next/posts";
-import { generate as generateSearch } from "virtual:react-router-next/search/[[query]]";
 import { ThemeToggle } from "../components/theme-provider";
 import { Container } from "../components/ui/container";
 import { NavLink, TopNav } from "../components/ui/nav";
@@ -20,7 +19,6 @@ const NAV_LINKS: { to: string; label: string }[] = [
   { to: generatePosts(), label: "Posts" },
   { to: generateNotes(), label: "Notes" },
   { to: generateDoc({ slug: ["intro"] }), label: "Docs" },
-  { to: generateSearch({ query: undefined }), label: "Search" },
   { to: generateFile({ slug: undefined }), label: "Files" },
   { to: generateDashboard(), label: "Dashboard" },
   { to: generatePhotos(), label: "Photos" },

@@ -28,17 +28,18 @@ npm run build   -w demo
 src/app/
 ├── layout.tsx                            # Root layout + top nav + global loading bar
 ├── page.tsx                              # /  — feature index hub
-├── not-found.tsx                         # Not-found page
+├── not-found.tsx                         # Root not-found page
 ├── (marketing)/                          # Route GROUP — invisible to URL
 │   ├── about/page.tsx                    # /about
 │   └── pricing/page.tsx                  # /pricing
-├── posts/                                # LAYOUT + LOADER + LOADING
+├── posts/                                # LAYOUT + LOADER + LOADING + PER-SEGMENT NOT-FOUND
 │   ├── layout.tsx                        # Section header, wraps children in <Outlet />
 │   ├── loader.ts                         # List loader (600 ms delay); exports Post + POSTS
 │   ├── loading.tsx                       # Skeleton shown during sibling navigation
+│   ├── not-found.tsx                     # Segment-scoped 404 — wins over root for /posts/...
 │   ├── page.tsx                          # /posts list
 │   └── [postId]/                         # DYNAMIC + ERROR
-│       ├── loader.ts                     # Per-post loader; throws on /posts/999
+│       ├── loader.ts                     # Per-post loader; throws on /posts/999, calls notFound() on unknown ids
 │       ├── error.tsx                     # Errors caught here keep parent layouts mounted
 │       └── page.tsx                      # /posts/:postId
 ├── notes/                                # LOADING via SUSPENSE (no loader)
@@ -48,7 +49,6 @@ src/app/
 │   ├── page.tsx                          # /notes — useNotes() suspends on mount
 │   └── [noteId]/page.tsx                 # /notes/:noteId — useNote(id) suspends per id
 ├── docs/[...slug]/page.tsx               # CATCH-ALL — matched value at params["*"]
-├── search/[[query]]/page.tsx             # OPTIONAL — :query?
 ├── files/[[...slug]]/page.tsx            # OPTIONAL CATCH-ALL — index + "*" siblings
 ├── dashboard/                            # PARALLEL ROUTES — @slot named props
 │   ├── layout.tsx                        # Receives { analytics } as a slot prop; main flow via <Outlet />
@@ -82,7 +82,7 @@ src/app/
 | `loader.ts` / `loader.tsx` | React Router loader (named export `loader`, or default)      | route's `loader`                                                                                                                                                                                                        |
 | `loading.tsx`              | Skeleton/fallback during navigation or while a hook suspends | injected boundary that renders the fallback when `useNavigation().state === "loading"`, and also wraps `<Outlet />` in a `<Suspense>` so suspending hooks (`use()`, React Query suspense, etc.) reuse the same fallback |
 | `error.tsx`                | Error boundary                                               | route's `errorElement` (read with `useRouteError()`)                                                                                                                                                                    |
-| `not-found.tsx`            | Not-found page                                               | top-level `{ path: "*" }` route                                                                                                                                                                                         |
+| `not-found.tsx`            | 404 boundary, scoped to the segment it lives in              | the segment gains a `{ path: "*" }` child; `notFound()` throws bypass any `error.tsx` and render the nearest ancestor `not-found.tsx`                                                                                   |
 
 ## Segment conventions
 
@@ -90,7 +90,6 @@ src/app/
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `users/`       | `/users`                                                                                                                                                            |
 | `[id]/`        | `/:id` (dynamic)                                                                                                                                                    |
-| `[[id]]/`      | `/:id?` (optional)                                                                                                                                                  |
 | `[...slug]/`   | `/*` (catch-all — matched value at `params["*"]`; the bare parent path 404s, matching Next.js — the router injects an `index` sibling that renders the 404 element) |
 | `[[...slug]]/` | bare path **and** `/*` (optional catch-all — emitted as a sibling index route + splat route, both pointing at the same `page.tsx`)                                  |
 | `(group)/`     | nothing (route group; folder exists but contributes no URL segment)                                                                                                 |
@@ -108,7 +107,6 @@ src/app/
 | Route literal       | Returned shape                   |
 | ------------------- | -------------------------------- |
 | `posts/[postId]`    | `{ postId: string }`             |
-| `search/[[query]]`  | `{ query?: string }`             |
 | `docs/[...slug]`    | `{ slug: string[] }`             |
 | `files/[[...slug]]` | `{ slug?: string[] }`            |
 | `(marketing)/about` | `{}` (groups contribute nothing) |
@@ -156,7 +154,7 @@ The route literal isn't validated against the actual mounted route — passing `
 
 - **Parallel-route slots can't have RR loaders.** Each `@slot/` subtree is matched imperatively via `useRoutes()` from inside the parent layout — it isn't part of React Router's data-router tree, so a `loader.ts` under a `@slot/` directory is dropped with a build-time warning. If a slot has `loading.tsx` it likewise won't be triggered by RR's navigation state. Use ordinary children (or a route-id loader) for data-driven UI.
 
-- **Intercepting routes only intercept on PUSH/REPLACE.** The wrapper checks `useNavigationType()`: `POP` (back/forward) and initial loads always render the original target. Refresh on a `/photos/1` URL shows the full-page detail, not the modal. Loaders/layouts/loading inside an interceptor folder are out of scope (V1) and produce a build-time warning.
+- **Intercepting routes only intercept on PUSH/REPLACE.** The wrapper checks `useNavigationType()`: `POP` (back/forward) and initial loads always render the original target. Refresh on a `/photos/1` URL shows the full-page detail, not the modal. Loaders, layouts, and loading boundaries inside an interceptor folder are unsupported and produce a build-time warning.
 
 - **Slot-owned intercepts pair with a parent `@slot`.** The `/photos` modal lives at `photos/@modal/(.)[id]/page.tsx` — the `(.)[id]` interceptor sits _inside_ a parallel slot, and `photos/layout.tsx` renders the slot prop (`{modal}`) alongside `<Outlet />`. On soft-nav to `/photos/:id` the slot matches the interceptor while the main outlet "freezes" to `photos/page.tsx`, so the grid stays mounted under the modal — the Next.js-canonical layering. The slot needs a `default.tsx` (returning `null` is fine) so it renders nothing when no photo is selected. A naked `photos/(.)[id]/page.tsx` interceptor still works, but swaps the page outright rather than overlaying it.
 
@@ -172,8 +170,8 @@ The route literal isn't validated against the actual mounted route — passing `
 - `/posts/1`, `/posts/999` — dynamic + error
 - `/notes`, `/notes/a` — same `loading.tsx`, but driven by a suspending hook instead of a loader
 - `/docs/intro`, `/docs/api/v2/reference` — catch-all
-- `/search`, `/search/react-router` — optional segment
 - `/files`, `/files/readme`, `/files/src/app/page.tsx` — optional catch-all
 - `/dashboard`, `/dashboard/settings` — parallel routes (main outlet + analytics slot, both swap independently)
 - `/photos` then click a thumbnail — modal interceptor; refresh on a photo URL shows the full page instead
-- `/no-such-route` — `not-found.tsx`
+- `/no-such-route` — root `not-found.tsx`
+- `/posts/missing`, `/posts/some/deep/unmatched/path` — per-segment `posts/not-found.tsx` (via `notFound()` and via the segment splat)

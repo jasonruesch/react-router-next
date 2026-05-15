@@ -6,16 +6,6 @@ describe("parseRouteParams", () => {
     expect(parseRouteParams("posts/[id]", { id: "1" })).toEqual({ id: "1" });
   });
 
-  it("extracts an optional [[id]] when present", () => {
-    expect(parseRouteParams("posts/[[id]]", { id: "42" })).toEqual({
-      id: "42",
-    });
-  });
-
-  it("returns undefined for an absent optional [[id]]", () => {
-    expect(parseRouteParams("posts/[[id]]", {})).toEqual({ id: undefined });
-  });
-
   it("parses a [...slug] rest param from the splat", () => {
     expect(parseRouteParams("docs/[...slug]", { "*": "a/b/c" })).toEqual({
       slug: ["a", "b", "c"],

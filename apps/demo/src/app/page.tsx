@@ -11,7 +11,6 @@ import { generate as generateNotes } from "virtual:react-router-next/notes";
 import { generate as generateNote } from "virtual:react-router-next/notes/[noteId]";
 import { generate as generatePosts } from "virtual:react-router-next/posts";
 import { generate as generatePost } from "virtual:react-router-next/posts/[postId]";
-import { generate as generateSearch } from "virtual:react-router-next/search/[[query]]";
 import { Card } from "../components/ui/card";
 import { Code, FilePath } from "../components/ui/code";
 import { Heading } from "../components/ui/heading";
@@ -102,18 +101,9 @@ const SECTIONS: Section[] = [
         to: generateDoc({ slug: ["api", "v2", "reference"] }),
         label: generateDoc({ slug: ["api", "v2", "reference"] }),
       },
-      { to: generateDoc({ slug: [] }), label: generateDoc({ slug: [] }) },
-    ],
-  },
-  {
-    title: "Optional dynamic segment",
-    feature: "[[query]]",
-    files: ["search/[[query]]/page.tsx"],
-    links: [
-      { to: generateSearch({ query: undefined }), label: "/search (no param)" },
       {
-        to: generateSearch({ query: "react-router" }),
-        label: "/search/react-router",
+        to: generateDoc({ slug: [] }),
+        label: `${generateDoc({ slug: [] })} (bare /docs — required catch-all 404s)`,
       },
     ],
   },
@@ -169,10 +159,25 @@ const SECTIONS: Section[] = [
     ],
   },
   {
-    title: "Not-found",
-    feature: "not-found.tsx",
+    title: "Root not-found",
+    feature: "not-found.tsx (root)",
     files: ["not-found.tsx"],
     links: [{ to: "/no-such-route", label: "/no-such-route" }],
+  },
+  {
+    title: "Per-segment not-found + notFound() helper",
+    feature: "posts/not-found.tsx, notFound()",
+    files: ["posts/not-found.tsx", "posts/[postId]/loader.ts"],
+    links: [
+      {
+        to: generatePost({ postId: "missing" }),
+        label: "/posts/missing (calls notFound())",
+      },
+      {
+        to: "/posts/some/deep/unmatched/path",
+        label: "/posts/some/deep/unmatched/path (segment splat)",
+      },
+    ],
   },
 ];
 

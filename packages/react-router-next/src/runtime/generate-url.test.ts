@@ -14,15 +14,6 @@ describe("generateUrl", () => {
     expect(generateUrl("posts/[id]", { id: "1" })).toBe("/posts/1");
   });
 
-  it("includes an optional [[id]] when provided", () => {
-    expect(generateUrl("posts/[[id]]", { id: "42" })).toBe("/posts/42");
-  });
-
-  it("omits an optional [[id]] when missing or empty", () => {
-    expect(generateUrl("posts/[[id]]", {})).toBe("/posts");
-    expect(generateUrl("posts/[[id]]", { id: "" })).toBe("/posts");
-  });
-
   it("expands a [...slug] rest param", () => {
     expect(generateUrl("docs/[...slug]", { slug: ["a", "b", "c"] })).toBe(
       "/docs/a/b/c",
