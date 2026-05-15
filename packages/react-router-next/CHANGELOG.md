@@ -1,5 +1,18 @@
 # @evolonix/react-router-next
 
+## 1.0.0
+
+### Major Changes
+
+- [#25](https://github.com/evolonix/react-router-next/pull/25) [`cf7076c`](https://github.com/evolonix/react-router-next/commit/cf7076cdcefe4ea2dfdf638d7706e2796e0c5442) Thanks [@jasonruesch](https://github.com/jasonruesch)! - v1 release.
+
+  **Breaking**
+  - Removed support for the optional single-dynamic segment pattern `[[name]]`. Use `[name]` for a required dynamic segment or `[[...name]]` for an optional catch-all. Folders named `[[name]]` are no longer recognized as a routing convention.
+
+  **New**
+  - `not-found.tsx` is now supported at any segment, not just the app root. The nearest ancestor's `not-found.tsx` renders for unmatched URLs under that segment.
+  - Added a `notFound()` helper (plus `NotFoundError` / `isNotFoundError`) that can be thrown from loaders or components to short-circuit to the nearest ancestor `not-found.tsx`, bypassing any intermediate `error.tsx`.
+
 ## 0.6.0
 
 ### Minor Changes

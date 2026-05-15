@@ -1,6 +1,6 @@
 {
   "name": "@evolonix/react-router-next",
-  "version": "0.6.0",
+  "version": "1.0.0",
   "description": "Next.js-style filesystem routing for React Router 7, with a Vite plugin that generates per-route typed params.",
   "license": "MIT",
   "type": "module",
