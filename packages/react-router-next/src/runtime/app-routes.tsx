@@ -6,7 +6,11 @@ import {
   TemplateRemount,
   type SlotConfig,
 } from "./parallel-routes";
-import { ComponentWithParams, LoadingBoundary } from "./route-components";
+import {
+  ComponentWithParams,
+  LoadingBoundary,
+  NotFoundBoundary,
+} from "./route-components";
 
 type LayoutWithSlots = ComponentType<{
   params?: RouteParamsRecord;
@@ -249,8 +253,6 @@ function segmentToSpecs(segment: string): RouteSpec[] {
   if (isRouteGroupSegment(segment)) return [{}];
   if (segment.startsWith("[[...") && segment.endsWith("]]"))
     return [{ index: true }, { path: "*" }];
-  if (segment.startsWith("[[") && segment.endsWith("]]"))
-    return [{ path: `:${segment.slice(2, -2)}?` }];
   if (segment.startsWith("[...") && segment.endsWith("]"))
     return [{ path: "*" }];
   if (segment.startsWith("[") && segment.endsWith("]"))
@@ -317,13 +319,13 @@ function lowerInterceptor(node: Node, targetKey: string): ReactNode {
   if (node.files.loader) {
     console.warn(
       `[react-router-next] Loader on intercepting route "${targetKey}" is ignored. ` +
-        `Interceptor loaders are not supported in V1.`,
+        `Interceptor loaders are not supported.`,
     );
   }
   if (node.files.layout) {
     console.warn(
       `[react-router-next] Layout on intercepting route "${targetKey}" is ignored. ` +
-        `Interceptor layouts are not supported in V1.`,
+        `Interceptor layouts are not supported.`,
     );
   }
   const Page = node.files.page?.default;
@@ -339,7 +341,7 @@ function nodeToRoute(
   node: Node,
   segment: string | null,
   path: string,
-  NotFound: ComponentType | undefined,
+  inheritedNotFound: ComponentType | undefined,
   intercepts: readonly Intercept[],
 ): RouteObject[] {
   const Layout = node.files.layout?.default;
@@ -347,6 +349,8 @@ function nodeToRoute(
   const Loading = node.files.loading?.default;
   const ErrorEl = node.files.error?.default;
   const Template = node.files.template?.default;
+  const OwnNotFound = node.files["not-found"]?.default;
+  const NearestNotFound = OwnNotFound ?? inheritedNotFound;
   const loader =
     node.files.loader?.loader ??
     (node.files.loader?.default as LoaderFunction | undefined);
@@ -355,7 +359,13 @@ function nodeToRoute(
   for (const [childSegment, childNode] of node.children) {
     const childPath = path === "" ? childSegment : `${path}/${childSegment}`;
     childRoutes.push(
-      ...nodeToRoute(childNode, childSegment, childPath, NotFound, intercepts),
+      ...nodeToRoute(
+        childNode,
+        childSegment,
+        childPath,
+        NearestNotFound,
+        intercepts,
+      ),
     );
   }
 
@@ -370,11 +380,18 @@ function nodeToRoute(
   inner.push(...childRoutes);
 
   if (
-    NotFound &&
+    NearestNotFound &&
     inner.some((c) => c.path === "*") &&
     !inner.some((c) => c.index)
   ) {
-    inner.unshift({ index: true, element: <NotFound /> });
+    inner.unshift({ index: true, element: <NearestNotFound /> });
+  }
+
+  // A segment that owns a `not-found.tsx` claims all unmatched paths beneath it
+  // via a splat child. Any deeper segment with its own `not-found.tsx` shadows
+  // this one because its splat sits below in the tree and matches first.
+  if (OwnNotFound && !inner.some((c) => c.path === "*")) {
+    inner.push({ path: "*", element: <OwnNotFound /> });
   }
 
   // Lower @slot subtrees once per layout that owns them.
@@ -390,7 +407,7 @@ function nodeToRoute(
         if (slotNode.files.loader) {
           console.warn(
             `[react-router-next] Loader inside @${slotName} at "${path || "/"}" is ignored. ` +
-              `Slot loaders are not supported in V1.`,
+              `Slot loaders are not supported.`,
           );
         }
         const slotIntercepts = intercepts.filter(
@@ -427,7 +444,11 @@ function nodeToRoute(
 
   return specs.map((spec) => {
     const route: RouteObject = { ...spec };
-    if (ErrorEl) route.errorElement = <ErrorEl />;
+    if (ErrorEl || OwnNotFound) {
+      route.errorElement = (
+        <NotFoundBoundary NotFound={NearestNotFound} ErrorComponent={ErrorEl} />
+      );
+    }
 
     const layoutElement = buildLayoutElement();
 
@@ -478,8 +499,6 @@ function routeKeyToRrSegments(routeKey: string): string[] {
       out.push("*");
     } else if (s.startsWith("[...") && s.endsWith("]")) {
       out.push("*");
-    } else if (s.startsWith("[[") && s.endsWith("]]")) {
-      out.push(`:${s.slice(2, -2)}?`);
     } else if (s.startsWith("[") && s.endsWith("]")) {
       out.push(`:${s.slice(1, -1)}`);
     } else {
@@ -682,14 +701,10 @@ export function buildRoutesFromModules(
   appDir: string,
 ): RouteObject[] {
   const tree = buildTree(modules, appDir);
-  const NotFound = tree.root.files["not-found"]?.default;
-  const [root] = nodeToRoute(tree.root, null, "", NotFound, tree.intercepts);
+  const [root] = nodeToRoute(tree.root, null, "", undefined, tree.intercepts);
   const parentIndexCache = new Map<string, ReactNode>();
   for (const intercept of tree.intercepts) {
     applyIntercept(root, intercept, parentIndexCache);
-  }
-  if (NotFound) {
-    (root.children ??= []).push({ path: "*", element: <NotFound /> });
   }
   return [root];
 }

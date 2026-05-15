@@ -10,6 +10,7 @@ import {
   parseInterceptPrefix,
   routeHasParams,
   routeKeyFor,
+  ROUTE_FILE_RE,
   scanAppDir,
   toPosix,
 } from "./scan";
@@ -210,5 +211,12 @@ describe("scanAppDir", () => {
 
     const { routeDirs } = scanAppDir(tmpRoot);
     expect(routeDirs).toEqual([join(tmpRoot, "posts")]);
+  });
+});
+
+describe("ROUTE_FILE_RE", () => {
+  it("matches the file kinds in the convention", () => {
+    expect(ROUTE_FILE_RE.test("/src/app/posts/not-found.tsx")).toBe(true);
+    expect(ROUTE_FILE_RE.test("/src/app/page.tsx")).toBe(true);
   });
 });

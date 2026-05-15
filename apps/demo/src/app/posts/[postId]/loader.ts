@@ -1,5 +1,5 @@
 import type { LoaderFunction } from "react-router";
-import { parseRouteParams } from "@evolonix/react-router-next";
+import { notFound, parseRouteParams } from "@evolonix/react-router-next";
 import type { Post } from "../loader";
 import { POSTS } from "../loader";
 
@@ -10,8 +10,6 @@ export const loader: LoaderFunction = async ({ params }) => {
     throw new Error("Post 999 was deliberately broken to demo error.tsx.");
   }
   const post: Post | undefined = POSTS.find((p) => String(p.id) === postId);
-  if (!post) {
-    throw new Response("Not found", { status: 404 });
-  }
+  if (!post) notFound();
   return post;
 };

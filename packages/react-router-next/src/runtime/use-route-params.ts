@@ -4,15 +4,13 @@ type ParseSegment<S extends string> = S extends `[[...${infer Name}]]`
   ? { [K in Name]?: string[] }
   : S extends `[...${infer Name}]`
     ? { [K in Name]: string[] }
-    : S extends `[[${infer Name}]]`
-      ? { [K in Name]?: string }
-      : S extends `[${infer Name}]`
-        ? { [K in Name]: string }
-        : S extends `(${string})`
+    : S extends `[${infer Name}]`
+      ? { [K in Name]: string }
+      : S extends `(${string})`
+        ? Record<never, never>
+        : S extends `@${string}`
           ? Record<never, never>
-          : S extends `@${string}`
-            ? Record<never, never>
-            : Record<never, never>;
+          : Record<never, never>;
 
 type ParseRoute<S extends string> = S extends `${infer Head}/${infer Tail}`
   ? ParseSegment<Head> & ParseRoute<Tail>
@@ -39,9 +37,6 @@ export function parseRouteParams<S extends string>(
         splat === undefined ? undefined : splat.split("/").filter(Boolean);
     } else if (seg.startsWith("[...") && seg.endsWith("]")) {
       out[seg.slice(4, -1)] = (rrParams["*"] ?? "").split("/").filter(Boolean);
-    } else if (seg.startsWith("[[") && seg.endsWith("]]")) {
-      const name = seg.slice(2, -2);
-      out[name] = rrParams[name];
     } else if (seg.startsWith("[") && seg.endsWith("]")) {
       const name = seg.slice(1, -1);
       out[name] = rrParams[name]!;

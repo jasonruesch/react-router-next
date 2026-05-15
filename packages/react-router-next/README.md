@@ -95,7 +95,6 @@ Folder-name conventions:
 | `foo`         | `/foo`                                                               | —                       |
 | `(group)`     | (segment removed)                                                    | —                       |
 | `[id]`        | `:id`                                                                | `{ id: string }`        |
-| `[[id]]`      | `:id?` (optional)                                                    | `{ id?: string }`       |
 | `[...slug]`   | catch-all                                                            | `{ slug: string[] }`    |
 | `[[...slug]]` | optional catch-all                                                   | `{ slug?: string[] }`   |
 | `@slot`       | (segment removed) — contents become a slot prop on the parent layout | —                       |
@@ -116,7 +115,7 @@ File-name conventions inside a route folder:
 | `loader.ts`     | React Router data loader                                                                                                                                                                                                                                         |
 | `loading.tsx`   | Rendered while a parent loader is pending **or** a descendant suspends — the injected boundary is both `useNavigation()`-aware and a `<Suspense>` fallback, so the same file covers `loader.ts` waits and suspending hooks (`use()`, React Query suspense, etc.) |
 | `error.tsx`     | `errorElement` for the route                                                                                                                                                                                                                                     |
-| `not-found.tsx` | App-wide not-found boundary (root only)                                                                                                                                                                                                                          |
+| `not-found.tsx` | Renders when no descendant route matches a URL under this segment, or when the segment (or one below) calls `notFound()`. Supported at any depth — the nearest ancestor wins.                                                                                    |
 
 ### 4. Use the typed helpers
 
@@ -218,7 +217,7 @@ export default function DashboardLayout({
 
 Each slot subtree can have its own `page.tsx` files (matching the parent's URL space) and a `default.tsx` fallback rendered when the URL doesn't match any of the slot's explicit pages.
 
-> **V1 caveat:** slot subtrees are matched via `useRoutes()` outside React Router's data router, so a `loader.ts` under a `@slot/` directory is dropped with a build-time warning. Use ordinary children for data-driven UI.
+> **Caveat:** slot subtrees are matched via `useRoutes()` outside React Router's data router, so a `loader.ts` under a `@slot/` directory is dropped with a build-time warning. Use ordinary children for data-driven UI.
 
 ## Intercepting routes (`(.)`/`(..)`/`(...)`)
 
@@ -249,12 +248,31 @@ On soft-nav to `/photos/:id`, the `@modal` slot matches the interceptor and the 
 
 A bare interceptor without the slot (`photos/(.)[id]/page.tsx`) still works — but it swaps the page element outright instead of overlaying it, so the grid unmounts on soft-nav. Use the slot variant when you want true overlay layering.
 
-> **V1 caveats:** the interceptor folder may only contain `page.tsx`. A `loader.ts` or `layout.tsx` inside an interceptor is dropped with a build-time warning. The intercept target route must exist — otherwise the build fails (a refresh on the URL has to render _something_). The "freeze" behavior is a static approximation of Next.js's freeze-to-pre-nav-URL: the main outlet always anchors to the parent layout's `page.tsx`, not to whichever sibling URL the user navigated _from_.
+> **Caveats:** the interceptor folder may only contain `page.tsx`. A `loader.ts` or `layout.tsx` inside an interceptor is dropped with a build-time warning. The intercept target route must exist — otherwise the build fails (a refresh on the URL has to render _something_). The "freeze" behavior is a static approximation of Next.js's freeze-to-pre-nav-URL: the main outlet always anchors to the parent layout's `page.tsx`, not to whichever sibling URL the user navigated _from_.
 
 ## `template.tsx` and `_private` folders
 
 - `template.tsx` works like `layout.tsx`, but the wrapper is keyed on `useLocation().pathname` so it remounts on every navigation. Useful for entry transitions or `useEffect`-based instrumentation that should fire per-navigation.
 - A folder whose name starts with `_` is skipped by the router entirely. Use it to colocate components, helpers, or fixtures alongside your routes without producing a URL.
+
+## `not-found.tsx` and the `notFound()` helper
+
+Drop a `not-found.tsx` at any segment to render a scoped 404 for unmatched URLs under that segment. When several `not-found.tsx` files exist along an ancestor chain, the nearest one to the unmatched URL wins.
+
+Throw `notFound()` from a loader (or any component during render) to short-circuit to the same boundary — for example, when a resource lookup misses:
+
+```ts
+// src/app/posts/[postId]/loader.ts
+import { notFound } from "@evolonix/react-router-next";
+
+export async function loader({ params }: { params: { postId: string } }) {
+  const post = await fetchPost(params.postId);
+  if (!post) notFound();
+  return post;
+}
+```
+
+The thrown `NotFoundError` bypasses any `error.tsx` in between and renders the nearest `not-found.tsx`.
 
 ## How types work without running Vite
 
