@@ -5,6 +5,7 @@ import { generate as generateHome } from "virtual:react-router-next/_root";
 import { generate as generateDashboard } from "virtual:react-router-next/dashboard";
 import { generate as generateDoc } from "virtual:react-router-next/docs/[...slug]";
 import { generate as generateFile } from "virtual:react-router-next/files/[[...slug]]";
+import { generate as generateInbox } from "virtual:react-router-next/inbox";
 import { generate as generateNotes } from "virtual:react-router-next/notes";
 import { generate as generatePhotos } from "virtual:react-router-next/photos";
 import { generate as generatePosts } from "virtual:react-router-next/posts";
@@ -22,6 +23,7 @@ const NAV_LINKS: { to: string; label: string }[] = [
   { to: generateFile({ slug: undefined }), label: "Files" },
   { to: generateDashboard(), label: "Dashboard" },
   { to: generatePhotos(), label: "Photos" },
+  { to: generateInbox(), label: "Inbox" },
 ];
 
 export default function RootLayout() {

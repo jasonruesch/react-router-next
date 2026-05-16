@@ -7,7 +7,11 @@ import {
   ParallelLayout,
   type SlotConfig,
 } from "./parallel-routes";
-import { ComponentWithParams, NotFoundBoundary } from "./route-components";
+import {
+  ComponentWithParams,
+  NotFoundBoundary,
+  SegmentBoundary,
+} from "./route-components";
 
 const APP_DIR = "/src/app";
 
@@ -291,7 +295,11 @@ describe("buildRoutesFromModules — per-segment not-found.tsx", () => {
 
     const [root] = buildRoutesFromModules(modules, APP_DIR);
     const posts = findChild(root, (r) => r.path === "posts");
-    const postId = findChild(posts, (r) => r.path === ":postId");
+    // posts has both a layout and a not-found, so its errorElement lives on
+    // a pathless wrapper INSIDE posts.children (so PostsLayout survives a
+    // notFound() throw). Drill through it to reach :postId.
+    const errorWrapper = posts.children![0];
+    const postId = findChild(errorWrapper, (r) => r.path === ":postId");
     const errorBoundary = asElement<{
       NotFound?: ComponentType;
       ErrorComponent?: ComponentType;
@@ -319,6 +327,58 @@ describe("buildRoutesFromModules — per-segment not-found.tsx", () => {
     expect(postId.errorElement).toBeUndefined();
     expect(posts.errorElement).toBeUndefined();
   });
+
+  it("places the errorElement on a pathless wrapper INSIDE the layout's children so the layout survives a notFound() throw", () => {
+    // Reproduces the bug where a `notFound()` throw replaced the segment's
+    // layout. In react-router, `errorElement` on a route replaces THAT
+    // route's `element`, so attaching it to the layout-owning route would
+    // unmount the layout when the error bubbles up. The fix nests the
+    // errorElement under a pathless wrapper so only the inner subtree gets
+    // replaced and `<Outlet>` continues rendering inside the layout.
+    const RootLayout = comp("RootLayout");
+    const RootNotFound = comp("RootNotFound");
+    const PostsLayout = comp("PostsLayout");
+    const PostsNotFound = comp("PostsNotFound");
+    const PostsPage = comp("PostsPage");
+
+    const modules: RouteModuleMap = {
+      [`${APP_DIR}/layout.tsx`]: { default: RootLayout },
+      [`${APP_DIR}/not-found.tsx`]: { default: RootNotFound },
+      [`${APP_DIR}/posts/layout.tsx`]: { default: PostsLayout },
+      [`${APP_DIR}/posts/not-found.tsx`]: { default: PostsNotFound },
+      [`${APP_DIR}/posts/page.tsx`]: { default: PostsPage },
+    };
+
+    const [root] = buildRoutesFromModules(modules, APP_DIR);
+
+    // Root has the layout but no errorElement of its own.
+    expect(asElement(root.element).type).toBe(RootLayout);
+    expect(root.errorElement).toBeUndefined();
+
+    // The errorElement is on a pathless wrapper as root's first child.
+    const rootErrorWrapper = root.children![0];
+    expect(rootErrorWrapper.path).toBeUndefined();
+    expect(rootErrorWrapper.element).toBeUndefined();
+    const rootBoundary = asElement<{ NotFound?: ComponentType }>(
+      rootErrorWrapper.errorElement,
+    );
+    expect(rootBoundary.type).toBe(NotFoundBoundary);
+    expect(rootBoundary.props.NotFound).toBe(RootNotFound);
+
+    // Same shape at the nested `posts` segment: PostsLayout on the route,
+    // PostsNotFound boundary on a pathless wrapper one level deeper.
+    const posts = findChild(rootErrorWrapper, (r) => r.path === "posts");
+    expect(asElement(posts.element).type).toBe(PostsLayout);
+    expect(posts.errorElement).toBeUndefined();
+    const postsErrorWrapper = posts.children![0];
+    expect(postsErrorWrapper.path).toBeUndefined();
+    expect(postsErrorWrapper.element).toBeUndefined();
+    const postsBoundary = asElement<{ NotFound?: ComponentType }>(
+      postsErrorWrapper.errorElement,
+    );
+    expect(postsBoundary.type).toBe(NotFoundBoundary);
+    expect(postsBoundary.props.NotFound).toBe(PostsNotFound);
+  });
 });
 
 describe("buildRoutesFromModules — optional catch-all [[...slug]]", () => {
@@ -337,6 +397,121 @@ describe("buildRoutesFromModules — optional catch-all [[...slug]]", () => {
     const hasSplat = files.children?.some((c) => c.path === "*") ?? false;
     expect(hasIndex).toBe(true);
     expect(hasSplat).toBe(true);
+  });
+});
+
+describe("buildRoutesFromModules — slot loading.tsx / error.tsx wiring", () => {
+  it("populates SlotConfig.ErrorComponent and NotFoundComponent from the slot root files", () => {
+    const Layout = comp("Layout");
+    const Page = comp("Page");
+    const SlotPage = comp("SlotPage");
+    const SlotError = comp("SlotError");
+    const SlotNotFound = comp("SlotNotFound");
+
+    const modules: RouteModuleMap = {
+      [`${APP_DIR}/layout.tsx`]: { default: Layout },
+      [`${APP_DIR}/dashboard/layout.tsx`]: { default: Layout },
+      [`${APP_DIR}/dashboard/page.tsx`]: { default: Page },
+      [`${APP_DIR}/dashboard/@side/page.tsx`]: { default: SlotPage },
+      [`${APP_DIR}/dashboard/@side/error.tsx`]: { default: SlotError },
+      [`${APP_DIR}/dashboard/@side/not-found.tsx`]: { default: SlotNotFound },
+    };
+
+    const [root] = buildRoutesFromModules(modules, APP_DIR);
+    const dashboard = findChild(root, (r) => r.path === "dashboard");
+    const layoutEl = asElement<{ slots: Record<string, SlotConfig> }>(
+      dashboard.element,
+    );
+    expect(layoutEl.type).toBe(ParallelLayout);
+    const slot = layoutEl.props.slots.side;
+    expect(slot.ErrorComponent).toBe(SlotError);
+    expect(slot.NotFoundComponent).toBe(SlotNotFound);
+  });
+});
+
+describe("buildRoutesFromModules — intercepted-route loading/error wiring", () => {
+  it("wraps the interceptor in SegmentBoundary when (.)[id]/error.tsx or loading.tsx exists", () => {
+    const PhotosLayout = comp("PhotosLayout");
+    const Feed = comp("Feed");
+    const FullPage = comp("FullPage");
+    const ModalDefault = comp("ModalDefault");
+    const ModalPage = comp("ModalPage");
+    const ModalLoading = comp("ModalLoading");
+    const ModalError = comp("ModalError");
+
+    const modules: RouteModuleMap = {
+      [`${APP_DIR}/photos/layout.tsx`]: { default: PhotosLayout },
+      [`${APP_DIR}/photos/page.tsx`]: { default: Feed },
+      [`${APP_DIR}/photos/[id]/page.tsx`]: { default: FullPage },
+      [`${APP_DIR}/photos/@modal/default.tsx`]: { default: ModalDefault },
+      [`${APP_DIR}/photos/@modal/(.)[id]/page.tsx`]: { default: ModalPage },
+      [`${APP_DIR}/photos/@modal/(.)[id]/loading.tsx`]: {
+        default: ModalLoading,
+      },
+      [`${APP_DIR}/photos/@modal/(.)[id]/error.tsx`]: { default: ModalError },
+    };
+
+    const [root] = buildRoutesFromModules(modules, APP_DIR);
+    const photos = findChild(root, (r) => r.path === "photos");
+    const layoutEl = asElement<{ slots: Record<string, SlotConfig> }>(
+      photos.element,
+    );
+    const slot = layoutEl.props.slots.modal;
+    const injected = slot.routes.find((r) => r.path === ":id");
+    expect(injected).toBeDefined();
+    const wrapper = asElement<{ Interceptor: unknown; Target: unknown }>(
+      injected!.element,
+    );
+    expect(wrapper.type).toBe(InterceptedRoute);
+    const boundary = asElement<{
+      Loading: unknown;
+      ErrorComponent: unknown;
+      NotFoundComponent: unknown;
+      children: unknown;
+    }>(wrapper.props.Interceptor);
+    expect(boundary.type).toBe(SegmentBoundary);
+    expect(boundary.props.Loading).toBe(ModalLoading);
+    expect(boundary.props.ErrorComponent).toBe(ModalError);
+    expect(boundary.props.NotFoundComponent).toBeUndefined();
+    // SegmentBoundary's children is the original page element.
+    const page = asElement<{ Component: ComponentType; route: string }>(
+      boundary.props.children,
+    );
+    expect(page.type).toBe(ComponentWithParams);
+    expect(page.props.Component).toBe(ModalPage);
+  });
+
+  it("leaves the interceptor unwrapped when no loading/error/not-found is present (backwards compat)", () => {
+    const PhotosLayout = comp("PhotosLayout");
+    const Feed = comp("Feed");
+    const FullPage = comp("FullPage");
+    const ModalDefault = comp("ModalDefault");
+    const ModalPage = comp("ModalPage");
+
+    const modules: RouteModuleMap = {
+      [`${APP_DIR}/photos/layout.tsx`]: { default: PhotosLayout },
+      [`${APP_DIR}/photos/page.tsx`]: { default: Feed },
+      [`${APP_DIR}/photos/[id]/page.tsx`]: { default: FullPage },
+      [`${APP_DIR}/photos/@modal/default.tsx`]: { default: ModalDefault },
+      [`${APP_DIR}/photos/@modal/(.)[id]/page.tsx`]: { default: ModalPage },
+    };
+
+    const [root] = buildRoutesFromModules(modules, APP_DIR);
+    const photos = findChild(root, (r) => r.path === "photos");
+    const layoutEl = asElement<{ slots: Record<string, SlotConfig> }>(
+      photos.element,
+    );
+    const slot = layoutEl.props.slots.modal;
+    const injected = slot.routes.find((r) => r.path === ":id");
+    const wrapper = asElement<{ Interceptor: unknown; Target: unknown }>(
+      injected!.element,
+    );
+    // No boundary — interceptor is the raw page wrapper.
+    const interceptor = asElement<{ Component: ComponentType }>(
+      wrapper.props.Interceptor,
+    );
+    expect(interceptor.type).toBe(ComponentWithParams);
+    expect(interceptor.props.Component).toBe(ModalPage);
   });
 });
 

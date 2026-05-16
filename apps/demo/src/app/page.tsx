@@ -1,10 +1,13 @@
 import { generate as generateMarketingAbout } from "virtual:react-router-next/(marketing)/about";
 import { generate as generateMarketingPricing } from "virtual:react-router-next/(marketing)/pricing";
 import { generate as generateDashboard } from "virtual:react-router-next/dashboard";
+import { generate as generateDashboardBroken } from "virtual:react-router-next/dashboard/broken";
 import { generate as generateDashboardOther } from "virtual:react-router-next/dashboard/other";
 import { generate as generateDashboardSettings } from "virtual:react-router-next/dashboard/settings";
 import { generate as generateDoc } from "virtual:react-router-next/docs/[...slug]";
 import { generate as generateFile } from "virtual:react-router-next/files/[[...slug]]";
+import { generate as generateInbox } from "virtual:react-router-next/inbox";
+import { generate as generateMessage } from "virtual:react-router-next/inbox/[id]";
 import { generate as generateNotes } from "virtual:react-router-next/notes";
 import { generate as generateNote } from "virtual:react-router-next/notes/[noteId]";
 import { generate as generatePhotos } from "virtual:react-router-next/photos";
@@ -156,6 +159,54 @@ const SECTIONS: Section[] = [
       {
         to: generatePhoto({ id: "1" }),
         label: `${generatePhoto({ id: "1" })} (refresh = full page)`,
+      },
+    ],
+  },
+  {
+    title: "loading.tsx + error.tsx in a parallel slot",
+    feature: "@slot/loading.tsx, @slot/error.tsx",
+    files: [
+      "dashboard/@notifications/page.tsx",
+      "dashboard/@notifications/default.tsx",
+      "dashboard/@notifications/loading.tsx",
+      "dashboard/@notifications/error.tsx",
+      "dashboard/@notifications/broken/page.tsx",
+      "dashboard/broken/page.tsx",
+      "dashboard/_lib/use-notifications.ts",
+    ],
+    links: [
+      {
+        to: generateDashboard(),
+        label: `${generateDashboard()} (slot loading)`,
+      },
+      {
+        to: generateDashboardBroken(),
+        label: `${generateDashboardBroken()} (slot error)`,
+      },
+    ],
+  },
+  {
+    title: "loading.tsx + error.tsx in an intercepted route",
+    feature: "@slot/(.)x/loading.tsx, @slot/(.)x/error.tsx",
+    files: [
+      "inbox/layout.tsx",
+      "inbox/page.tsx",
+      "inbox/[id]/page.tsx",
+      "inbox/@modal/default.tsx",
+      "inbox/@modal/(.)[id]/page.tsx",
+      "inbox/@modal/(.)[id]/loading.tsx",
+      "inbox/@modal/(.)[id]/error.tsx",
+      "inbox/_lib/use-message.ts",
+    ],
+    links: [
+      { to: generateInbox(), label: generateInbox() },
+      {
+        to: generateMessage({ id: "1" }),
+        label: `${generateMessage({ id: "1" })} (refresh = full page)`,
+      },
+      {
+        to: generateMessage({ id: "999" }),
+        label: `${generateMessage({ id: "999" })} (modal error)`,
       },
     ],
   },

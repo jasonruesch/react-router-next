@@ -50,25 +50,46 @@ src/app/
 │   └── [noteId]/page.tsx                 # /notes/:noteId — useNote(id) suspends per id
 ├── docs/[...slug]/page.tsx               # CATCH-ALL — matched value at params["*"]
 ├── files/[[...slug]]/page.tsx            # OPTIONAL CATCH-ALL — index + "*" siblings
-├── dashboard/                            # PARALLEL ROUTES — @slot named props
-│   ├── layout.tsx                        # Receives { analytics } as a slot prop; main flow via <Outlet />
+├── dashboard/                            # PARALLEL ROUTES — @slot named props + SLOT-SCOPED LOADING/ERROR
+│   ├── _lib/use-notifications.ts         # useNotifications() — promise cache + use(); throws when key === "broken"
+│   ├── layout.tsx                        # Receives { analytics, notifications } as slot props; main flow via <Outlet />
 │   ├── page.tsx                          # /dashboard main panel
 │   ├── settings/page.tsx                 # /dashboard/settings main panel
-│   └── @analytics/                       # parallel slot — invisible to URL
-│       ├── page.tsx                      # rendered for /dashboard
-│       ├── settings/page.tsx             # rendered for /dashboard/settings
-│       └── default.tsx                   # fallback when slot has no match
-└── photos/                               # INTERCEPTING ROUTES INSIDE A PARALLEL SLOT + TEMPLATE + PRIVATE FOLDER
+│   ├── broken/page.tsx                   # /dashboard/broken — main panel that explains the slot error below
+│   ├── @analytics/                       # parallel slot — invisible to URL
+│   │   ├── page.tsx                      # rendered for /dashboard
+│   │   ├── settings/page.tsx             # rendered for /dashboard/settings
+│   │   └── default.tsx                   # fallback when slot has no match
+│   └── @notifications/                   # parallel slot with its own loading + error boundaries
+│       ├── page.tsx                      # /dashboard — useNotifications("ok") suspends on mount
+│       ├── default.tsx                   # fallback when slot has no match
+│       ├── loading.tsx                   # skeleton shown only inside this slot while the hook suspends
+│       ├── error.tsx                     # boundary scoped to this slot — other slots and the outlet stay mounted
+│       └── broken/page.tsx               # /dashboard/broken — calls useNotifications("broken") and throws
+├── photos/                               # INTERCEPTING ROUTES INSIDE A PARALLEL SLOT + TEMPLATE + PRIVATE FOLDER
+│   ├── layout.tsx                        # function ({ modal }) — renders <Outlet /> then {modal}
+│   ├── page.tsx                          # /photos grid (stays mounted behind the modal)
+│   ├── [id]/                             # full-page detail
+│   │   ├── page.tsx                      # /photos/:id
+│   │   └── template.tsx                  # remounts on every navigation
+│   ├── @modal/                           # parallel slot — invisible to URL
+│   │   ├── default.tsx                   # null fallback when the slot has no match
+│   │   └── (.)[id]/page.tsx              # modal interceptor — rendered on PUSH/REPLACE
+│   └── _components/                      # PRIVATE folder — never routes
+│       └── dialog.tsx                    # importable helper module
+└── inbox/                                # INTERCEPTED MODAL WITH SLOT-SCOPED LOADING + ERROR
+    ├── _components/dialog.tsx            # Dialog shell shared by the interceptor's page/loading/error
+    ├── _lib/use-message.ts               # useMessage() — promise cache + use(); throws for id 999, notFound() otherwise
+    ├── data.ts                           # MESSAGES seed data
     ├── layout.tsx                        # function ({ modal }) — renders <Outlet /> then {modal}
-    ├── page.tsx                          # /photos grid (stays mounted behind the modal)
-    ├── [id]/                             # full-page detail
-    │   ├── page.tsx                      # /photos/:id
-    │   └── template.tsx                  # remounts on every navigation
-    ├── @modal/                           # parallel slot — invisible to URL
-    │   ├── default.tsx                   # null fallback when the slot has no match
-    │   └── (.)[id]/page.tsx              # modal interceptor — rendered on PUSH/REPLACE
-    └── _components/                      # PRIVATE folder — never routes
-        └── dialog.tsx                    # importable helper module
+    ├── page.tsx                          # /inbox list (stays mounted behind the modal)
+    ├── [id]/page.tsx                     # /inbox/:id full-page fallback (shown on refresh)
+    └── @modal/                           # parallel slot — invisible to URL
+        ├── default.tsx                   # null fallback when no message is selected
+        └── (.)[id]/                      # modal interceptor — rendered on PUSH/REPLACE
+            ├── page.tsx                  # dialog with message body — useMessage(id) suspends
+            ├── loading.tsx               # dialog skeleton while useMessage() resolves
+            └── error.tsx                 # dialog error boundary — the inbox behind it stays mounted
 ```
 
 ## File conventions
@@ -171,7 +192,9 @@ The route literal isn't validated against the actual mounted route — passing `
 - `/notes`, `/notes/a` — same `loading.tsx`, but driven by a suspending hook instead of a loader
 - `/docs/intro`, `/docs/api/v2/reference` — catch-all
 - `/files`, `/files/readme`, `/files/src/app/page.tsx` — optional catch-all
-- `/dashboard`, `/dashboard/settings` — parallel routes (main outlet + analytics slot, both swap independently)
+- `/dashboard`, `/dashboard/settings` — parallel routes (main outlet + analytics slot, both swap independently); the `@notifications` slot suspends with its own `loading.tsx`
+- `/dashboard/broken` — slot-scoped `error.tsx` (only the `@notifications` column fails; the main outlet and `@analytics` slot stay rendered)
 - `/photos` then click a thumbnail — modal interceptor; refresh on a photo URL shows the full page instead
+- `/inbox` then click a message — same intercepted-modal pattern, but the interceptor has its own `loading.tsx` (suspends on `useMessage()`) and `error.tsx` (click the `broken (id 999)` row to trigger it inside the dialog); refresh on `/inbox/:id` shows the full page
 - `/no-such-route` — root `not-found.tsx`
 - `/posts/missing`, `/posts/some/deep/unmatched/path` — per-segment `posts/not-found.tsx` (via `notFound()` and via the segment splat)
