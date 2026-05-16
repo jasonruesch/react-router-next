@@ -6,6 +6,7 @@ export {
 } from "./runtime/app-routes";
 export { generateUrl } from "./runtime/generate-url";
 export { isNotFoundError, notFound, NotFoundError } from "./runtime/not-found";
+export { useRouteError } from "./runtime/route-components";
 export { useIsRoutePending } from "./runtime/route-pending";
 export {
   parseRouteParams,

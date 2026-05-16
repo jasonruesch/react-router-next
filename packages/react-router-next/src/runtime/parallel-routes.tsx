@@ -7,11 +7,14 @@ import {
   type RouteObject,
 } from "react-router";
 
+import { SegmentBoundary } from "./route-components";
 import { parseRouteParams } from "./use-route-params";
 
 export type SlotConfig = {
   routes: RouteObject[];
   defaultElement: ReactNode | null;
+  ErrorComponent?: ComponentType;
+  NotFoundComponent?: ComponentType;
 };
 
 type LayoutWithSlots = ComponentType<{
@@ -19,9 +22,22 @@ type LayoutWithSlots = ComponentType<{
   [slot: string]: unknown;
 }>;
 
-function SlotElement({ slot }: { slot: SlotConfig }): ReactNode {
+function SlotElement({ slot }: { slot: SlotConfig }): ReactElement {
   const matched = useRoutes(slot.routes);
-  return matched ?? slot.defaultElement;
+  const content: ReactNode = matched ?? slot.defaultElement;
+  // `useRoutes(...)` doesn't honor `errorElement` (only the top-level data
+  // router does), so wrap the slot output in our framework boundary so the
+  // slot's own `error.tsx` / `not-found.tsx` actually catch render errors
+  // inside the slot subtree instead of letting them bubble out to the data
+  // router's root boundary.
+  return (
+    <SegmentBoundary
+      ErrorComponent={slot.ErrorComponent}
+      NotFoundComponent={slot.NotFoundComponent}
+    >
+      {content}
+    </SegmentBoundary>
+  );
 }
 
 /**

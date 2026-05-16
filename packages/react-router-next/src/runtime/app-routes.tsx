@@ -10,6 +10,7 @@ import {
   ComponentWithParams,
   LoadingBoundary,
   NotFoundBoundary,
+  SegmentBoundary,
 } from "./route-components";
 
 type LayoutWithSlots = ComponentType<{
@@ -285,6 +286,8 @@ function lowerSlotToConfig(
   const defaultElement: ReactNode | null = Default
     ? renderComponent(Default, slotPath)
     : null;
+  const ErrorComponent = slotNode.files.error?.default;
+  const NotFoundComponent = slotNode.files["not-found"]?.default;
   // Strip the default file before lowering — it's a sibling fallback, not a page.
   const stripped: Node = {
     files: { ...slotNode.files, default: undefined },
@@ -312,7 +315,7 @@ function lowerSlotToConfig(
       element: <InterceptedRoute Interceptor={interceptorEl} Target={null} />,
     });
   }
-  return { routes, defaultElement };
+  return { routes, defaultElement, ErrorComponent, NotFoundComponent };
 }
 
 function lowerInterceptor(node: Node, targetKey: string): ReactNode {
@@ -334,7 +337,20 @@ function lowerInterceptor(node: Node, targetKey: string): ReactNode {
       `[react-router-next] Intercepting route at "${targetKey}" is missing page.tsx.`,
     );
   }
-  return renderComponent(Page, targetKey);
+  const Loading = node.files.loading?.default;
+  const ErrorComponent = node.files.error?.default;
+  const NotFoundComponent = node.files["not-found"]?.default;
+  const pageEl = renderComponent(Page, targetKey);
+  if (!Loading && !ErrorComponent && !NotFoundComponent) return pageEl;
+  return (
+    <SegmentBoundary
+      Loading={Loading}
+      ErrorComponent={ErrorComponent}
+      NotFoundComponent={NotFoundComponent}
+    >
+      {pageEl}
+    </SegmentBoundary>
+  );
 }
 
 function nodeToRoute(
@@ -442,13 +458,13 @@ function nodeToRoute(
     return renderComponent(Layout, path);
   };
 
+  const errorElement: ReactElement | undefined =
+    ErrorEl || OwnNotFound ? (
+      <NotFoundBoundary NotFound={NearestNotFound} ErrorComponent={ErrorEl} />
+    ) : undefined;
+
   return specs.map((spec) => {
     const route: RouteObject = { ...spec };
-    if (ErrorEl || OwnNotFound) {
-      route.errorElement = (
-        <NotFoundBoundary NotFound={NearestNotFound} ErrorComponent={ErrorEl} />
-      );
-    }
 
     const layoutElement = buildLayoutElement();
 
@@ -462,7 +478,7 @@ function nodeToRoute(
             },
           ]
         : inner;
-      route.children = Loading
+      const innerChildren = Loading
         ? [
             {
               element: <LoadingBoundary Loading={Loading} />,
@@ -470,19 +486,36 @@ function nodeToRoute(
             },
           ]
         : wrappedInner;
+      // When a layout owns this segment, attach `errorElement` to a pathless
+      // wrapper INSIDE the layout's children rather than on the route itself.
+      // react-router's `errorElement` replaces the *route's* element when an
+      // error bubbles up to it, so putting it on the layout route would
+      // unmount the layout when `notFound()` fires. The pathless wrapper has
+      // no element of its own — when its `errorElement` fires, only the inner
+      // subtree is replaced and the layout's `<Outlet>` keeps rendering the
+      // not-found inside the surviving layout chrome (matching Next.js).
+      route.children = errorElement
+        ? [{ errorElement, children: innerChildren }]
+        : innerChildren;
     } else if (Template) {
+      if (errorElement) route.errorElement = errorElement;
       route.element = <TemplateRemount Template={Template} />;
       route.children = Loading
         ? [{ element: <LoadingBoundary Loading={Loading} />, children: inner }]
         : inner;
     } else if (Loading) {
+      if (errorElement) route.errorElement = errorElement;
       route.element = <LoadingBoundary Loading={Loading} />;
       route.children = inner;
     } else if (pageEl && childRoutes.length === 0) {
+      if (errorElement) route.errorElement = errorElement;
       route.element = pageEl;
       if (loader) route.loader = loader;
     } else if (inner.length > 0) {
+      if (errorElement) route.errorElement = errorElement;
       route.children = inner;
+    } else if (errorElement) {
+      route.errorElement = errorElement;
     }
     return route;
   });
